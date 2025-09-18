@@ -82,6 +82,12 @@ public class MapGenerator : MonoBehaviour
     if (centerMainCamera) CenterCamera();
   }
 
+
+  public bool regenerateOnPlay = true;
+  void Start()
+  {
+    if (regenerateOnPlay) Generate();
+  }
   Vector3 CellToWorld(int x, int y) => new Vector3(x, y, 0f);
 
   //Vector3 CellToWorld(int x, int y)
