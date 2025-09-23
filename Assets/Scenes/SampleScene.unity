@@ -527,14 +527,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDownShooter.PlayerMovement
   moveSpeed: 5
-  moveSound: {fileID: 8300000, guid: 0edbe01192f4cbe4e92cbfbe76585401, type: 3}
-  soundCooldown: 0.3
+  moveSound: {fileID: 8300000, guid: 9794958e3ad24ca468e9f1c12493e63c, type: 3}
+  soundInterval: 0.3
   circlePrefab: {fileID: 146285343}
   circleDuration: 3
   explosionLinePrefab: {fileID: 0}
   explosionDuration: 1
   explosionLength: 3
   explosionWidth: 0.8
+  placeBombSound: {fileID: 8300000, guid: e93fd369f876d4e48a536ae301da34b0, type: 3}
+  explosionSound: {fileID: 8300000, guid: d986befc48033444bac8397381527bda, type: 3}
 --- !u!212 &1936885800
 SpriteRenderer:
   m_ObjectHideFlags: 0

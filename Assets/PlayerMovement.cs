@@ -11,7 +11,8 @@ namespace TopDownShooter
 
         [Header("Audio")]
         [SerializeField] private AudioClip moveSound;
-        [SerializeField] private float soundCooldown = 0.3f;
+        [SerializeField] private float soundInterval = 0.5f; // Intervalo entre sonidos
+        private float soundTimer;
         
         [Header("Circle Effect")]
         [SerializeField] private GameObject circlePrefab;
@@ -20,20 +21,30 @@ namespace TopDownShooter
         [Header("Explosion Effect")]
         [SerializeField] private GameObject explosionLinePrefab;
         [SerializeField] private float explosionDuration = 1f;
-        [SerializeField] private float explosionLength = 5f; // Aumentado de 2f a 5f
-        [SerializeField] private float explosionWidth = 0.3f; // Ancho de las líneas
+        [SerializeField] private float explosionLength = 5f;
+        [SerializeField] private float explosionWidth = 0.3f;
+        
+        [Header("Bomb Sounds")]
+        [SerializeField] private AudioClip placeBombSound;
+        [SerializeField] private AudioClip explosionSound;
         
         private Rigidbody2D rb;
         private AudioSource audioSource;
-        private float lastSoundTime;
+        private AudioSource walkAudioSource; // AudioSource separado para caminar
         private bool wasMoving = false;
         private GameObject currentCircle;
         private float circleCreationTime;
+        private bool isMoving = false;
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
             audioSource = GetComponent<AudioSource>();
+            
+            // Crear AudioSource separado para el sonido de caminar
+            walkAudioSource = gameObject.AddComponent<AudioSource>();
+            walkAudioSource.playOnAwake = false;
+            walkAudioSource.loop = false; // No usar loop nativo, controlaremos manualmente
             
             if (audioSource == null)
             {
@@ -50,6 +61,7 @@ namespace TopDownShooter
             }
             
             CheckCircleExpiration();
+            HandleMovementSound(); // Mover a Update para mejor control
         }
 
         private void OnMove(InputValue value)
@@ -75,27 +87,55 @@ namespace TopDownShooter
         private void FixedUpdate()
         {
             rb.linearVelocity = movementDirection * moveSpeed;
-            HandleMovementSound();
+            
+            // Actualizar estado de movimiento
+            isMoving = movementDirection.magnitude > 0.1f;
         }
 
         private void HandleMovementSound()
         {
-            bool isMoving = movementDirection.magnitude > 0.1f;
-            
+            // Manejar inicio/fin del movimiento
             if (isMoving && !wasMoving)
             {
-                PlayMoveSound();
+                StartWalkingSound();
+            }
+            else if (!isMoving && wasMoving)
+            {
+                StopWalkingSound();
+            }
+            
+            // Reproducir sonido en intervalos mientras se mueve
+            if (isMoving)
+            {
+                soundTimer -= Time.deltaTime;
+                if (soundTimer <= 0f)
+                {
+                    PlayWalkSound();
+                    soundTimer = soundInterval;
+                }
             }
             
             wasMoving = isMoving;
         }
 
-        private void PlayMoveSound()
+        private void StartWalkingSound()
         {
-            if (Time.time - lastSoundTime >= soundCooldown && moveSound != null)
+            // Reproducir primer sonido inmediatamente
+            PlayWalkSound();
+            soundTimer = soundInterval;
+        }
+
+        private void StopWalkingSound()
+        {
+            // Reiniciar timer
+            soundTimer = 0f;
+        }
+
+        private void PlayWalkSound()
+        {
+            if (moveSound != null && walkAudioSource != null)
             {
-                audioSource.PlayOneShot(moveSound);
-                lastSoundTime = Time.time;
+                walkAudioSource.PlayOneShot(moveSound);
             }
         }
 
@@ -111,6 +151,7 @@ namespace TopDownShooter
             {
                 currentCircle = Instantiate(circlePrefab, transform.position, Quaternion.identity);
                 circleCreationTime = Time.time;
+                PlayPlaceBombSound();
             }
             else
             {
@@ -122,6 +163,7 @@ namespace TopDownShooter
         {
             if (currentCircle != null && Time.time - circleCreationTime >= circleDuration)
             {
+                PlayExplosionSound();
                 CreateExplosionEffect(currentCircle.transform.position);
                 Destroy(currentCircle);
                 currentCircle = null;
@@ -130,11 +172,10 @@ namespace TopDownShooter
 
         private void CreateExplosionEffect(Vector3 position)
         {
-            // Crear las 4 direcciones de la cruz (más grande)
-            CreateExplosionLine(position, Vector3.right, explosionLength);    // Derecha
-            CreateExplosionLine(position, Vector3.left, explosionLength);     // Izquierda
-            CreateExplosionLine(position, Vector3.up, explosionLength);       // Arriba
-            CreateExplosionLine(position, Vector3.down, explosionLength);     // Abajo
+            CreateExplosionLine(position, Vector3.right, explosionLength);
+            CreateExplosionLine(position, Vector3.left, explosionLength);
+            CreateExplosionLine(position, Vector3.up, explosionLength);
+            CreateExplosionLine(position, Vector3.down, explosionLength);
         }
 
         private void CreateExplosionLine(Vector3 position, Vector3 direction, float length)
@@ -143,15 +184,12 @@ namespace TopDownShooter
             {
                 GameObject line = Instantiate(explosionLinePrefab, position, Quaternion.identity);
                 
-                // Orientar la línea según la dirección
                 float angle = 0f;
                 if (direction == Vector3.up) angle = 90f;
                 else if (direction == Vector3.down) angle = 270f;
                 else if (direction == Vector3.left) angle = 180f;
                 
                 line.transform.rotation = Quaternion.Euler(0, 0, angle);
-                
-                // Escalar la línea (más ancha y larga)
                 line.transform.localScale = new Vector3(length, explosionWidth, 1f);
                 
                 Destroy(line, explosionDuration);
@@ -170,14 +208,12 @@ namespace TopDownShooter
             SpriteRenderer spriteRenderer = line.AddComponent<SpriteRenderer>();
             spriteRenderer.color = Color.yellow;
             
-            // Crear sprite más grande
-            int baseSize = 100; // Tamaño base más grande
+            int baseSize = 100;
             int width = (int)(baseSize * explosionWidth);
             int height = (int)(baseSize * length);
             
             spriteRenderer.sprite = CreateLineSprite(width, height);
             
-            // Orientar la línea
             float angle = 0f;
             if (direction == Vector3.up) angle = 90f;
             else if (direction == Vector3.down) angle = 270f;
@@ -192,25 +228,39 @@ namespace TopDownShooter
         {
             Texture2D texture = new Texture2D(width, height);
             
-            // Rellenar la textura con color sólido
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    // Opcional: hacer bordes transparentes para mejor apariencia
                     if (x < 2 || x > width - 3 || y < 2 || y > height - 3)
                     {
-                        texture.SetPixel(x, y, new Color(1, 1, 0, 0.5f)); // Borde semi-transparente
+                        texture.SetPixel(x, y, new Color(1, 1, 0, 0.5f));
                     }
                     else
                     {
-                        texture.SetPixel(x, y, Color.yellow); // Centro sólido
+                        texture.SetPixel(x, y, Color.yellow);
                     }
                 }
             }
             
             texture.Apply();
             return Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f));
+        }
+
+        private void PlayPlaceBombSound()
+        {
+            if (placeBombSound != null)
+            {
+                audioSource.PlayOneShot(placeBombSound);
+            }
+        }
+
+        private void PlayExplosionSound()
+        {
+            if (explosionSound != null)
+            {
+                audioSource.PlayOneShot(explosionSound);
+            }
         }
     }
 }
