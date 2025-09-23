@@ -537,6 +537,31 @@ MonoBehaviour:
   explosionWidth: 0.8
   placeBombSound: {fileID: 8300000, guid: e93fd369f876d4e48a536ae301da34b0, type: 3}
   explosionSound: {fileID: 8300000, guid: d986befc48033444bac8397381527bda, type: 3}
+  placeBombAction:
+    m_Name: Place Bomb
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: ce34fdde-659b-4a5b-a273-4a384e5929d7
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 6ab9dfdd-53e9-4478-b922-40eed8273028
+      m_Path: <Keyboard>/e
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Place Bomb
+      m_Flags: 0
+    - m_Name: 
+      m_Id: 9741f30b-c204-4383-8f23-9fa78cdef559
+      m_Path: <Gamepad>/buttonWest
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Place Bomb
+      m_Flags: 0
+    m_Flags: 0
 --- !u!212 &1936885800
 SpriteRenderer:
   m_ObjectHideFlags: 0

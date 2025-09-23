@@ -11,7 +11,7 @@ namespace TopDownShooter
 
         [Header("Audio")]
         [SerializeField] private AudioClip moveSound;
-        [SerializeField] private float soundInterval = 0.5f; // Intervalo entre sonidos
+        [SerializeField] private float soundInterval = 0.5f;
         private float soundTimer;
         
         [Header("Circle Effect")]
@@ -28,9 +28,12 @@ namespace TopDownShooter
         [SerializeField] private AudioClip placeBombSound;
         [SerializeField] private AudioClip explosionSound;
         
+        [Header("Input")]
+        [SerializeField] private InputAction placeBombAction; // Nueva acción de input
+        
         private Rigidbody2D rb;
         private AudioSource audioSource;
-        private AudioSource walkAudioSource; // AudioSource separado para caminar
+        private AudioSource walkAudioSource;
         private bool wasMoving = false;
         private GameObject currentCircle;
         private float circleCreationTime;
@@ -41,10 +44,9 @@ namespace TopDownShooter
             rb = GetComponent<Rigidbody2D>();
             audioSource = GetComponent<AudioSource>();
             
-            // Crear AudioSource separado para el sonido de caminar
             walkAudioSource = gameObject.AddComponent<AudioSource>();
             walkAudioSource.playOnAwake = false;
-            walkAudioSource.loop = false; // No usar loop nativo, controlaremos manualmente
+            walkAudioSource.loop = false;
             
             if (audioSource == null)
             {
@@ -53,15 +55,26 @@ namespace TopDownShooter
             }
         }
 
+        private void OnEnable()
+        {
+            placeBombAction.Enable(); // Habilitar la acción
+        }
+
+        private void OnDisable()
+        {
+            placeBombAction.Disable(); // Deshabilitar la acción
+        }
+
         private void Update()
         {
-            if (Keyboard.current.eKey.wasPressedThisFrame)
+            // Detectar tanto tecla E como botón X del gamepad
+            if (placeBombAction.WasPressedThisFrame())
             {
                 CreateCircle();
             }
             
             CheckCircleExpiration();
-            HandleMovementSound(); // Mover a Update para mejor control
+            HandleMovementSound();
         }
 
         private void OnMove(InputValue value)
@@ -84,17 +97,15 @@ namespace TopDownShooter
             movementDirection = movementDirection.normalized;
         }
 
+        // Resto del código igual...
         private void FixedUpdate()
         {
             rb.linearVelocity = movementDirection * moveSpeed;
-            
-            // Actualizar estado de movimiento
             isMoving = movementDirection.magnitude > 0.1f;
         }
 
         private void HandleMovementSound()
         {
-            // Manejar inicio/fin del movimiento
             if (isMoving && !wasMoving)
             {
                 StartWalkingSound();
@@ -104,7 +115,6 @@ namespace TopDownShooter
                 StopWalkingSound();
             }
             
-            // Reproducir sonido en intervalos mientras se mueve
             if (isMoving)
             {
                 soundTimer -= Time.deltaTime;
@@ -120,14 +130,12 @@ namespace TopDownShooter
 
         private void StartWalkingSound()
         {
-            // Reproducir primer sonido inmediatamente
             PlayWalkSound();
             soundTimer = soundInterval;
         }
 
         private void StopWalkingSound()
         {
-            // Reiniciar timer
             soundTimer = 0f;
         }
 
