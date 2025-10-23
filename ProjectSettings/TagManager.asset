@@ -53,5 +53,11 @@ TagManager:
   - name: DecorBack
     uniqueID: 1892868835
     locked: 0
+  - name: Characters
+    uniqueID: 2565179645
+    locked: 0
+  - name: Bombs
+    uniqueID: 2433640163
+    locked: 0
   m_RenderingLayers:
   - Default
