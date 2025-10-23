@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags: []
   layers:
   - Default
@@ -11,10 +11,10 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - L_Walls
+  - L_Breakables
+  - L_Player
+  - L_Bomb
   - 
   - 
   - 
@@ -41,3 +41,17 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Ground
+    uniqueID: 3077011841
+    locked: 0
+  - name: BlocksBreakable
+    uniqueID: 3031043279
+    locked: 0
+  - name: Walls
+    uniqueID: 1403973743
+    locked: 0
+  - name: DecorBack
+    uniqueID: 1892868835
+    locked: 0
+  m_RenderingLayers:
+  - Default
