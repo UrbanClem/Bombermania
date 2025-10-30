@@ -5,6 +5,32 @@ namespace TopDownShooter
 {
     public class PlayerMovement : MonoBehaviour
     {
+        // --- agrega dentro de la clase PlayerMovement ---
+        private bool canMove = true;
+
+        public void EnableControl(bool enable)
+        {
+            canMove = enable;
+            if (!enable)
+            {
+                // detén al jugador y el sonido de caminar
+                rb.linearVelocity = Vector2.zero;
+            }
+        }
+
+        // --- pega esto dentro de PlayerMovement (TopDownShooter) ---
+
+        // Getter opcional por si luego quieres leerlo
+        public float CurrentSpeed => moveSpeed;
+
+        // Sumar velocidad con tope
+        public void AddSpeed(float amount, float maxSpeed)
+        {
+            moveSpeed = Mathf.Min(moveSpeed + amount, maxSpeed);
+            // (Opcional) Debug o feedback
+            // Debug.Log($"[PlayerMovement] Nueva velocidad: {moveSpeed}");
+        }
+
         [Header("Movement")]
         [SerializeField] private float moveSpeed = 5f;
         private Vector2 movementDirection;
@@ -100,9 +126,17 @@ namespace TopDownShooter
         // Resto del código igual...
         private void FixedUpdate()
         {
+            if (!canMove)
+            {
+                rb.linearVelocity = Vector2.zero;
+                isMoving = false;
+                return;
+            }
+
             rb.linearVelocity = movementDirection * moveSpeed;
             isMoving = movementDirection.magnitude > 0.1f;
         }
+
 
         private void HandleMovementSound()
         {
