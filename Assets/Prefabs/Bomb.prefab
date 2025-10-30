@@ -80,12 +80,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Sprite: {fileID: -2613247888821195678, guid: 012d7622a570b6a42b04bde4ac0099d2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.32, y: 0.32}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -109,6 +109,12 @@ MonoBehaviour:
   grid: {fileID: 0}
   solidMap: {fileID: 0}
   breakableMap: {fileID: 0}
+  solidMask:
+    serializedVersion: 2
+    m_Bits: 64
+  breakableMask:
+    serializedVersion: 2
+    m_Bits: 128
   fuseSeconds: 1.5
   range: 1
   explosionVfx: {fileID: 1718810550732817441, guid: d4ec08ee9d87f764e966957ec5b8123c, type: 3}
@@ -122,4 +128,5 @@ MonoBehaviour:
   - {fileID: 8523390844399359750, guid: da7f73a29f2f24348a30114927300b6c, type: 3}
   - {fileID: 8159166442541989139, guid: 2c2aa6ac470ccb94ab9056351ff663df, type: 3}
   - {fileID: 3560184132345025665, guid: a1d646ec5cf860348ac22dd075c451c2, type: 3}
+  explosionSfx: {fileID: 8300000, guid: d986befc48033444bac8397381527bda, type: 3}
   owner: {fileID: 0}

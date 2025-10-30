@@ -14,6 +14,23 @@ public class PlayerBombPlacer : MonoBehaviour
     public int bombRange = 1;     // para el Bomb.range
     public int maxBombRange = 7;
 
+    // --- en PlayerBombPlacer.cs ---
+    [Header("SFX")]
+    public AudioClip placeBombSfx;
+
+    private AudioSource _audio;
+
+    private void Awake()
+    {
+        _audio = GetComponent<AudioSource>();
+        if (_audio == null)
+        {
+            _audio = gameObject.AddComponent<AudioSource>();
+            _audio.playOnAwake = false;
+        }
+    }
+
+
     public int bombCapacity = 1;  // cuántas bombas a la vez
     public int maxBombCapacity = 8;
 
@@ -50,6 +67,7 @@ public class PlayerBombPlacer : MonoBehaviour
             (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame);
 
         if (pressed) TryPlace();
+        if (placeBombSfx != null) _audio.PlayOneShot(placeBombSfx);
     }
 
     private void OnPlacePerformed(InputAction.CallbackContext ctx) => TryPlace();

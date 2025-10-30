@@ -15,6 +15,13 @@ public class Bomb : MonoBehaviour
     public Tilemap solidMap;
     public Tilemap breakableMap;
 
+    [Header("Detección por Colliders (fallback)")]
+    public LayerMask solidMask;       // ← asigna capa SolidWalls
+    public LayerMask breakableMask;   // ← asigna capa BreakableWalls
+
+    // Reutilizamos buffer para evitar allocs
+    private readonly Collider2D[] _overlapBuf = new Collider2D[8];
+
     [Header("Explosión")]
     public float fuseSeconds = 1.0f;
     public int range = 1;
@@ -33,13 +40,20 @@ public class Bomb : MonoBehaviour
     [Range(0f, 1f)] public float dropChance = 0.25f; // 25% prob por bloque destruido
     public GameObject[] dropPrefabs; // lista de prefabs posibles (rango, velocidad, capacidad)
 
+    [Header("SFX")]
+    public AudioClip explosionSfx;
+    private AudioSource _audio;
+
     [HideInInspector] public PlayerBombPlacer owner; // para liberar capacidad
 
     private Vector3Int cellOrigin;
     private readonly List<GameObject> spawnedPreview = new List<GameObject>();
 
+    private LevelManager levelManager;
+
     private void Awake()
     {
+        if (levelManager == null) levelManager = FindFirstObjectByType<LevelManager>();
         if (grid == null)
         {
             var go = GameObject.Find(gridName);
@@ -59,6 +73,13 @@ public class Bomb : MonoBehaviour
         {
             var breakGO = GameObject.Find(breakableMapName);
             if (breakGO) breakableMap = breakGO.GetComponent<Tilemap>();
+        }
+        _audio = GetComponent<AudioSource>();
+        if (_audio == null)
+        {
+            _audio = gameObject.AddComponent<AudioSource>();
+            _audio.playOnAwake = false;
+            _audio.spatialBlend = 0f; // 2D (ajusta si quieres 3D)
         }
     }
 
@@ -88,27 +109,25 @@ public class Bomb : MonoBehaviour
         Destroy(gameObject);
     }
 
+    // --- ShowPreview consistente con colisiones ---
     private void ShowPreview()
     {
         if (previewVfx == null) return;
 
+        // centro
         spawnedPreview.Add(SpawnVFX(previewVfx, cellOrigin, fuseSeconds, previewZOffset));
 
         var dirs = new Vector3Int[] { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
         foreach (var dir in dirs)
         {
-            for (int step = 1; step <= range; step++)
+            var cells = GetLineCells(dir);
+            for (int i = 0; i < cells.Count; i++)
             {
-                var cell = cellOrigin + dir * step;
-
-                if (solidMap != null && solidMap.HasTile(cell)) break;
-
-                spawnedPreview.Add(SpawnVFX(previewVfx, cell, fuseSeconds, previewZOffset));
-
-                if (breakableMap != null && breakableMap.HasTile(cell)) break;
+                spawnedPreview.Add(SpawnVFX(previewVfx, cells[i], fuseSeconds, previewZOffset));
             }
         }
     }
+
 
     private void ClearPreview()
     {
@@ -116,29 +135,97 @@ public class Bomb : MonoBehaviour
         spawnedPreview.Clear();
     }
 
+    // ====== Helpers robustos (sin API obsoleta) ======
+    private bool IsSolid(Vector3Int cell)
+    {
+        // 1) Tilemap primero
+        if (solidMap != null && solidMap.HasTile(cell)) return true;
+
+        // 2) Fallback por collider (LayerMask)
+        Vector2 p = (Vector2)grid.GetCellCenterWorld(cell);
+        // Devuelve el primer collider que encuentre en la máscara
+        Collider2D hit = Physics2D.OverlapPoint(p, solidMask);
+        return hit != null;
+    }
+
+    private bool IsBreakable(Vector3Int cell)
+    {
+        // 1) Tilemap primero
+        if (breakableMap != null && breakableMap.HasTile(cell)) return true;
+
+        // 2) Fallback por collider (LayerMask)
+        Vector2 p = (Vector2)grid.GetCellCenterWorld(cell);
+        Collider2D hit = Physics2D.OverlapPoint(p, breakableMask);
+        return hit != null;
+    }
+
+    private void BreakTile(Vector3Int cell)
+    {
+        // Si existe como tile en el Tilemap, quítalo y listo
+        if (breakableMap != null && breakableMap.HasTile(cell))
+        {
+            breakableMap.SetTile(cell, null);
+            levelManager?.OnBreakableDestroyed(cell); // 👈 AVISAR
+            return;
+        }
+
+        // Si tus rompibles son GameObjects con colliders (no Tilemap)
+        Vector2 p = (Vector2)grid.GetCellCenterWorld(cell);
+        Collider2D[] hits = Physics2D.OverlapPointAll(p, breakableMask);
+        for (int i = 0; i < hits.Length; i++)
+        {
+            var go = hits[i].gameObject;
+            if (go != null && go != this.gameObject)
+            {
+                Destroy(go);
+            }
+        }
+        levelManager?.OnBreakableDestroyed(cell);
+    }
+
+
+
+
+    // --- Explode usando la MISMA ruta ---
     private void Explode()
     {
-        // centro
+        if (explosionSfx != null)
+            AudioSource.PlayClipAtPoint(explosionSfx, transform.position, 1f);
+
         DoExplosionAt(cellOrigin);
 
         var dirs = new Vector3Int[] { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
         foreach (var dir in dirs)
         {
-            for (int step = 1; step <= range; step++)
+            var cells = GetLineCells(dir);
+            for (int i = 0; i < cells.Count; i++)
             {
-                var cell = cellOrigin + dir * step;
+                var cell = cells[i];
 
-                if (solidMap != null && solidMap.HasTile(cell)) break;
-
-                if (breakableMap != null && breakableMap.HasTile(cell))
+                // si es rompible, la rompemos y paramos (GetLineCells ya incluye solo la primera)
+                if (IsBreakable(cell))
                 {
-                    // Romper bloque
-                    breakableMap.SetTile(cell, null);
-                    DoExplosionAt(cell);   // golpea esa celda
-                    TryDrop(cell);         // intenta soltar power-up
-                    break;                 // detiene avance
+                    BreakTile(cell);
+
+                    // 1) ¿Era la celda de la salida?
+                    bool spawnedExit = false;
+                    if (levelManager != null)
+                    {
+                        spawnedExit = levelManager.TrySpawnExitAt(cell);
+                        levelManager.OnBreakableDestroyed(cell); // actualiza contador
+                    }
+
+                    // 2) Si NO era salida, intenta drop
+                    if (!spawnedExit)
+                    {
+                        TryDrop(cell);
+                    }
+
+                    DoExplosionAt(cell);
+                    break; // detener brazo aquí
                 }
 
+                // vacío
                 DoExplosionAt(cell);
             }
         }
@@ -175,4 +262,34 @@ public class Bomb : MonoBehaviour
         if (life > 0f) Destroy(go, life);
         return go;
     }
+
+    // Devuelve las celdas en una dirección,
+    // deteniéndose en el primer bloque destructible o en una pared sólida.
+    private List<Vector3Int> GetLineCells(Vector3Int dir)
+    {
+        var list = new List<Vector3Int>();
+        for (int step = 1; step <= range; step++)
+        {
+            var cell = cellOrigin + dir * step;
+
+            if (IsSolid(cell))
+            {
+                // pared indestructible: no incluimos esta celda y paramos
+                break;
+            }
+
+            if (IsBreakable(cell))
+            {
+                // añadimos la celda destructible y paramos
+                list.Add(cell);
+                break;
+            }
+
+            // vacío: añadimos y seguimos
+            list.Add(cell);
+        }
+        return list;
+    }
+
+
 }
