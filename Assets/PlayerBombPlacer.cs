@@ -10,6 +10,10 @@ public class PlayerBombPlacer : MonoBehaviour
     public GameObject bombPrefab;
     public float placeCooldown = 0.2f;
 
+    [Header("Stats")]
+    public int bombRange = 1;                  // Aumenta con power-ups
+    public int maxBombRange = 7;
+
     private float nextPlaceTime = 0f;
     private bool useEvent = false;
 
@@ -23,7 +27,7 @@ public class PlayerBombPlacer : MonoBehaviour
         }
         else
         {
-            useEvent = false; // no hay acción asignada -> usamos fallback en Update
+            useEvent = false;
         }
     }
 
@@ -38,9 +42,8 @@ public class PlayerBombPlacer : MonoBehaviour
 
     private void Update()
     {
-        if (useEvent) return; // ya escuchamos por evento
+        if (useEvent) return;
 
-        // Fallback: si no tienes action enlazada, chequea inputs directo
         bool pressed =
             (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) ||
             (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame);
@@ -60,6 +63,20 @@ public class PlayerBombPlacer : MonoBehaviour
 
         if (bombPrefab == null) return;
 
-        Instantiate(bombPrefab, new Vector3(transform.position.x, transform.position.y, 0f), Quaternion.identity);
+        var go = Instantiate(bombPrefab, new Vector3(transform.position.x, transform.position.y, 0f), Quaternion.identity);
+
+        // Inyectar rango a la Bomb
+        var bomb = go.GetComponent<Bomb>();
+        if (bomb != null)
+        {
+            bomb.range = Mathf.Clamp(bombRange, 1, maxBombRange);
+        }
+    }
+
+    // Llamado por power-ups
+    public void AddBombRange(int amount)
+    {
+        bombRange = Mathf.Clamp(bombRange + amount, 1, maxBombRange);
+        // Aquí puedes reproducir un sonido o UI feedback
     }
 }
