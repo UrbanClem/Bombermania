@@ -6,7 +6,11 @@ using System.Collections.Generic;
 public class Bomb : MonoBehaviour
 {
     [Header("Drops")]
+<<<<<<< HEAD
     public LayerMask powerUpMask;  // ← asigna la capa PowerUp en el Inspector
+=======
+public LayerMask powerUpMask;  // ← asigna la capa PowerUp en el Inspector
+>>>>>>> f963b82694d3c94ef95ffb5f1fc54b046b09a11a
 
     [Header("Auto-assign por nombre si está en null")]
     public string gridName = "Grid";
@@ -47,6 +51,11 @@ public class Bomb : MonoBehaviour
     public AudioClip explosionSfx;
     private AudioSource _audio;
     [Range(0f, 1f)] public float explosionVolume = 1f;
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> f963b82694d3c94ef95ffb5f1fc54b046b09a11a
 
     [HideInInspector] public PlayerBombPlacer owner; // para liberar capacidad
 
@@ -194,6 +203,11 @@ public class Bomb : MonoBehaviour
     private void Explode()
     {
         PlayOneShot2D(explosionSfx, explosionVolume);
+<<<<<<< HEAD
+=======
+        if (explosionSfx != null)
+            AudioSource.PlayClipAtPoint(explosionSfx, transform.position, 1f);
+>>>>>>> f963b82694d3c94ef95ffb5f1fc54b046b09a11a
 
         DoExplosionAt(cellOrigin);
 
@@ -333,5 +347,18 @@ public class Bomb : MonoBehaviour
         Object.Destroy(go, clip.length);
     }
 
+    private static void PlayOneShot2D(AudioClip clip, float volume = 1f)
+    {
+        if (clip == null) return;
+        var go = new GameObject("OneShot2D_Audio");
+        var src = go.AddComponent<AudioSource>();
+        src.playOnAwake = false;
+        src.spatialBlend = 0f;   // 2D
+        src.volume = volume;
+        src.clip = clip;
+        src.priority = 128;      // prioridad normal
+        src.Play();
+        Object.Destroy(go, clip.length);
+    }
 
 }
