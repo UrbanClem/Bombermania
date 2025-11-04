@@ -20,6 +20,10 @@ public class ExplosionHitbox : MonoBehaviour
         }
 
 
-        // Aquí luego: if (other.CompareTag("Enemy")) { other.GetComponent<EnemyHealth>()?.TakeDamage(1); }
+        if (other.CompareTag("Enemy"))
+        {
+            Destroy(other.gameObject);
+        }
+
     }
 }

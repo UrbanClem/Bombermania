@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 public class Bomb : MonoBehaviour
 {
+    [Header("Drops")]
+    public LayerMask powerUpMask;  // ← asigna la capa PowerUp en el Inspector
+
     [Header("Auto-assign por nombre si está en null")]
     public string gridName = "Grid";
     public string solidMapName = "Walls_Solid";
@@ -207,23 +210,27 @@ public class Bomb : MonoBehaviour
                 {
                     BreakTile(cell);
 
-                    // 1) ¿Era la celda de la salida?
+                    // 1) Salida: si era la celda elegida
                     bool spawnedExit = false;
                     if (levelManager != null)
                     {
                         spawnedExit = levelManager.TrySpawnExitAt(cell);
-                        levelManager.OnBreakableDestroyed(cell); // actualiza contador
+                        levelManager.OnBreakableDestroyed(cell);
                     }
 
-                    // 2) Si NO era salida, intenta drop
+                    // 2) Explosión visual/daño en esta celda PERO SIN limpiar drops aquí
+                    DoExplosionAt(cell, clearDrops: false);
+
+                    // 3) Si NO era salida, recién ahora intentamos drop
                     if (!spawnedExit)
                     {
                         TryDrop(cell);
                     }
 
-                    DoExplosionAt(cell);
-                    break; // detener brazo aquí
+                    // 4) Detener la propagación
+                    break;
                 }
+
 
                 // vacío
                 DoExplosionAt(cell);
@@ -231,9 +238,11 @@ public class Bomb : MonoBehaviour
         }
     }
 
-    private void DoExplosionAt(Vector3Int cell)
+    private void DoExplosionAt(Vector3Int cell, bool clearDrops = true)
     {
         if (explosionVfx != null) SpawnVFX(explosionVfx, cell, vfxSeconds, 0f);
+
+        // hitbox de daño (como ya lo tenías)
         if (explosionHitboxPrefab != null)
         {
             Vector3 pos = grid.GetCellCenterWorld(cell);
@@ -242,7 +251,13 @@ public class Bomb : MonoBehaviour
             if (comp != null) comp.lifetime = hitboxLifetime;
             else Destroy(hb, hitboxLifetime);
         }
+
+        // 🧹 limpia drops solo si corresponde
+        if (clearDrops)
+            ClearPowerUpsAt(cell);
     }
+
+
 
     private void TryDrop(Vector3Int cell)
     {
@@ -289,6 +304,20 @@ public class Bomb : MonoBehaviour
             list.Add(cell);
         }
         return list;
+    }
+    private void ClearPowerUpsAt(Vector3Int cell)
+    {
+        if (powerUpMask == 0) return;
+        Vector2 p = (Vector2)grid.GetCellCenterWorld(cell);
+        var hits = Physics2D.OverlapPointAll(p, powerUpMask);
+        for (int i = 0; i < hits.Length; i++)
+        {
+            var go = hits[i].gameObject;
+            if (go != null && go != this.gameObject)
+            {
+                Destroy(go);
+            }
+        }
     }
 
 
