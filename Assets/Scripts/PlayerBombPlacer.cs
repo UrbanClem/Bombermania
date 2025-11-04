@@ -14,20 +14,20 @@ public class PlayerBombPlacer : MonoBehaviour
     public int bombRange = 1;     // para el Bomb.range
     public int maxBombRange = 7;
 
-    // --- en PlayerBombPlacer.cs ---
+    // Campos
     [Header("SFX")]
     public AudioClip placeBombSfx;
+    [Range(0f, 1f)] public float placeVolume = 1f;
 
     private AudioSource _audio;
 
     private void Awake()
     {
         _audio = GetComponent<AudioSource>();
-        if (_audio == null)
-        {
-            _audio = gameObject.AddComponent<AudioSource>();
-            _audio.playOnAwake = false;
-        }
+        if (_audio == null) _audio = gameObject.AddComponent<AudioSource>();
+        _audio.playOnAwake = false;
+        _audio.spatialBlend = 0f;  // 2D
+        _audio.volume = 1f;
     }
 
 
@@ -76,18 +76,22 @@ public class PlayerBombPlacer : MonoBehaviour
     {
         if (Time.time < nextPlaceTime) return;
         if (activeBombs >= bombCapacity) return;
+        if (bombPrefab == null) return;
+
+        // 🔊 suena al colocar (2D)
+        if (placeBombSfx != null) _audio.PlayOneShot(placeBombSfx, placeVolume);
+        // alternativa 100% independiente del Player:
+        // PlayOneShot2D(placeBombSfx, placeVolume);
 
         nextPlaceTime = Time.time + placeCooldown;
-        if (bombPrefab == null) return;
 
         var go = Instantiate(bombPrefab, new Vector3(transform.position.x, transform.position.y, 0f), Quaternion.identity);
         var bomb = go.GetComponent<Bomb>();
         if (bomb != null)
         {
             bomb.range = Mathf.Clamp(bombRange, 1, maxBombRange);
-            bomb.owner = this; // para liberar capacidad al explotar
+            bomb.owner = this;
         }
-
         activeBombs++;
     }
 
@@ -106,4 +110,19 @@ public class PlayerBombPlacer : MonoBehaviour
     {
         bombCapacity = Mathf.Clamp(bombCapacity + amount, 1, maxBombCapacity);
     }
+
+    private static void PlayOneShot2D(AudioClip clip, float volume = 1f)
+    {
+        if (clip == null) return;
+        var go = new GameObject("OneShot2D_Audio");
+        var src = go.AddComponent<AudioSource>();
+        src.playOnAwake = false;
+        src.spatialBlend = 0f;   // 2D
+        src.volume = volume;
+        src.clip = clip;
+        src.priority = 128;      // prioridad normal
+        src.Play();
+        Object.Destroy(go, clip.length);
+    }
+
 }

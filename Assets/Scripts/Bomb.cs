@@ -46,6 +46,7 @@ public class Bomb : MonoBehaviour
     [Header("SFX")]
     public AudioClip explosionSfx;
     private AudioSource _audio;
+    [Range(0f, 1f)] public float explosionVolume = 1f;
 
     [HideInInspector] public PlayerBombPlacer owner; // para liberar capacidad
 
@@ -192,8 +193,7 @@ public class Bomb : MonoBehaviour
     // --- Explode usando la MISMA ruta ---
     private void Explode()
     {
-        if (explosionSfx != null)
-            AudioSource.PlayClipAtPoint(explosionSfx, transform.position, 1f);
+        PlayOneShot2D(explosionSfx, explosionVolume);
 
         DoExplosionAt(cellOrigin);
 
@@ -318,6 +318,19 @@ public class Bomb : MonoBehaviour
                 Destroy(go);
             }
         }
+    }
+    private static void PlayOneShot2D(AudioClip clip, float volume = 1f)
+    {
+        if (clip == null) return;
+        var go = new GameObject("OneShot2D_Audio");
+        var src = go.AddComponent<AudioSource>();
+        src.playOnAwake = false;
+        src.spatialBlend = 0f;   // 2D
+        src.volume = volume;
+        src.clip = clip;
+        src.priority = 128;      // prioridad normal
+        src.Play();
+        Object.Destroy(go, clip.length);
     }
 
 
