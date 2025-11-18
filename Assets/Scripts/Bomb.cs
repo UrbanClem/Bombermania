@@ -48,15 +48,25 @@ public class Bomb : MonoBehaviour
     private AudioSource _audio;
     [Range(0f, 1f)] public float explosionVolume = 1f;
 
+    [Header("Física de la bomba")]
+    [SerializeField] private float tiempoHastaColision = 0.5f;
+    [SerializeField] private LayerMask jugadorLayer;
+
     [HideInInspector] public PlayerBombPlacer owner; // para liberar capacidad
 
     private Vector3Int cellOrigin;
     private readonly List<GameObject> spawnedPreview = new List<GameObject>();
-
     private LevelManager levelManager;
+    
+    // Variables para el comportamiento de colisión temporal
+    private Collider2D bombCollider;
+    private bool colisionActivada = false;
+    private GameObject jugadorQueColoco;
 
     private void Awake()
     {
+        bombCollider = GetComponent<Collider2D>();
+        
         if (levelManager == null) levelManager = FindFirstObjectByType<LevelManager>();
         if (grid == null)
         {
@@ -89,6 +99,12 @@ public class Bomb : MonoBehaviour
 
     private void Start()
     {
+        // Configuración inicial de colisiones - la bomba es atravesable al inicio
+        if (bombCollider != null)
+        {
+            bombCollider.isTrigger = true;
+        }
+        
         if (grid == null)
         {
             Debug.LogError("[Bomb] No se encontró Grid en la escena.");
@@ -102,6 +118,30 @@ public class Bomb : MonoBehaviour
         ShowPreview();
 
         StartCoroutine(Fuse());
+    }
+
+    // Método para configurar qué jugador colocó esta bomba
+    public void SetJugadorQueColoco(GameObject jugador)
+    {
+        jugadorQueColoco = jugador;
+    }
+
+    private void ActivarColision()
+    {
+        colisionActivada = true;
+        if (bombCollider != null)
+        {
+            bombCollider.isTrigger = false;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        // Si el jugador que colocó la bomba sale de ella, activamos colisión inmediatamente
+        if (!colisionActivada && other.gameObject == jugadorQueColoco)
+        {
+            ActivarColision();
+        }
     }
 
     private IEnumerator Fuse()
@@ -131,7 +171,6 @@ public class Bomb : MonoBehaviour
             }
         }
     }
-
 
     private void ClearPreview()
     {
@@ -187,9 +226,6 @@ public class Bomb : MonoBehaviour
         levelManager?.OnBreakableDestroyed(cell);
     }
 
-
-
-
     // --- Explode usando la MISMA ruta ---
     private void Explode()
     {
@@ -231,7 +267,6 @@ public class Bomb : MonoBehaviour
                     break;
                 }
 
-
                 // vacío
                 DoExplosionAt(cell);
             }
@@ -256,8 +291,6 @@ public class Bomb : MonoBehaviour
         if (clearDrops)
             ClearPowerUpsAt(cell);
     }
-
-
 
     private void TryDrop(Vector3Int cell)
     {
@@ -305,6 +338,7 @@ public class Bomb : MonoBehaviour
         }
         return list;
     }
+
     private void ClearPowerUpsAt(Vector3Int cell)
     {
         if (powerUpMask == 0) return;
@@ -319,6 +353,7 @@ public class Bomb : MonoBehaviour
             }
         }
     }
+
     private static void PlayOneShot2D(AudioClip clip, float volume = 1f)
     {
         if (clip == null) return;
@@ -332,5 +367,4 @@ public class Bomb : MonoBehaviour
         src.Play();
         Object.Destroy(go, clip.length);
     }
-
 }

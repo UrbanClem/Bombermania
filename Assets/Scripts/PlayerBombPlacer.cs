@@ -91,6 +91,9 @@ public class PlayerBombPlacer : MonoBehaviour
         {
             bomb.range = Mathf.Clamp(bombRange, 1, maxBombRange);
             bomb.owner = this;
+            
+            // 👇 AGREGAR ESTA LÍNEA para la física de colisión temporal
+            bomb.SetJugadorQueColoco(this.gameObject);
         }
         activeBombs++;
     }
@@ -124,5 +127,4 @@ public class PlayerBombPlacer : MonoBehaviour
         src.Play();
         Object.Destroy(go, clip.length);
     }
-
 }
