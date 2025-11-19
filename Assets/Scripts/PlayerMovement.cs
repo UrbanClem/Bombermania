@@ -8,6 +8,7 @@ namespace TopDownShooter
         // --- agrega dentro de la clase PlayerMovement ---
         private bool canMove = true;
 
+    
         public void EnableControl(bool enable)
         {
             canMove = enable;
@@ -56,6 +57,12 @@ namespace TopDownShooter
         
         [Header("Input")]
         [SerializeField] private InputAction placeBombAction; // Nueva acción de input
+
+        // Variables para animaciones
+        private Vector2 lastMovementDirection = Vector2.down; // Dirección por defecto
+        
+        [Header("Animation")]
+        [SerializeField] private Animator playerAnimator;
         
         private Rigidbody2D rb;
         private AudioSource audioSource;
@@ -101,6 +108,7 @@ namespace TopDownShooter
             
             CheckCircleExpiration();
             HandleMovementSound();
+            UpdateAnimation(); // Llamar a la actualización de animaciones
         }
 
         private void OnMove(InputValue value)
@@ -121,9 +129,135 @@ namespace TopDownShooter
             }
             
             movementDirection = movementDirection.normalized;
+
+            // Actualizar última dirección solo si hay movimiento
+            if (movementDirection.magnitude > 0.1f)
+            {
+                lastMovementDirection = movementDirection;
+            }
         }
 
-        // Resto del código igual...
+        private void UpdateAnimation()
+        {
+            if (!canMove)
+            {
+                // Si no puede moverse, poner animación idle según la última dirección
+                SetIdleAnimation();
+                return;
+            }
+
+            // Determinar si está moviéndose
+            bool isMoving = movementDirection.magnitude > 0.1f;
+
+            if (isMoving)
+            {
+                SetWalkingAnimation();
+            }
+            else
+            {
+                SetIdleAnimation();
+            }
+        }
+
+        private void SetWalkingAnimation()
+        {
+            // Determinar dirección principal (priorizar horizontal sobre vertical si hay diagonal)
+            if (Mathf.Abs(movementDirection.x) > Mathf.Abs(movementDirection.y))
+            {
+                // Movimiento horizontal
+                if (movementDirection.x > 0)
+                {
+                    playerAnimator.SetBool("IsWalkingRight", true);
+                    playerAnimator.SetBool("IsWalkingLeft", false);
+                    playerAnimator.SetBool("IsWalkingUp", false);
+                    playerAnimator.SetBool("IsWalkingDown", false);
+                }
+                else
+                {
+                    playerAnimator.SetBool("IsWalkingRight", false);
+                    playerAnimator.SetBool("IsWalkingLeft", true);
+                    playerAnimator.SetBool("IsWalkingUp", false);
+                    playerAnimator.SetBool("IsWalkingDown", false);
+                }
+            }
+            else
+            {
+                // Movimiento vertical
+                if (movementDirection.y > 0)
+                {
+                    playerAnimator.SetBool("IsWalkingRight", false);
+                    playerAnimator.SetBool("IsWalkingLeft", false);
+                    playerAnimator.SetBool("IsWalkingUp", true);
+                    playerAnimator.SetBool("IsWalkingDown", false);
+                }
+                else
+                {
+                    playerAnimator.SetBool("IsWalkingRight", false);
+                    playerAnimator.SetBool("IsWalkingLeft", false);
+                    playerAnimator.SetBool("IsWalkingUp", false);
+                    playerAnimator.SetBool("IsWalkingDown", true);
+                }
+            }
+        }
+
+        private void SetIdleAnimation()
+        {
+            // Usar la última dirección para la animación idle
+            if (Mathf.Abs(lastMovementDirection.x) > Mathf.Abs(lastMovementDirection.y))
+            {
+                // Dirección horizontal predominante
+                if (lastMovementDirection.x > 0)
+                {
+                    playerAnimator.SetBool("IsWalkingRight", false);
+                    playerAnimator.SetBool("IsWalkingLeft", false);
+                    playerAnimator.SetBool("IsWalkingUp", false);
+                    playerAnimator.SetBool("IsWalkingDown", false);
+                    // Opcional: tener animaciones idle separadas
+                    //playerAnimator.SetBool("IsIdleRight", true);
+                    //playerAnimator.SetBool("IsIdleLeft", false);
+                    //playerAnimator.SetBool("IsIdleUp", false);
+                    //playerAnimator.SetBool("IsIdleDown", false);
+                }
+                else
+                {
+                    playerAnimator.SetBool("IsWalkingRight", false);
+                    playerAnimator.SetBool("IsWalkingLeft", false);
+                    playerAnimator.SetBool("IsWalkingUp", false);
+                    playerAnimator.SetBool("IsWalkingDown", false);
+                    //playerAnimator.SetBool("IsIdleRight", false);
+                    //playerAnimator.SetBool("IsIdleLeft", true);
+                    //playerAnimator.SetBool("IsIdleUp", false);
+                    //playerAnimator.SetBool("IsIdleDown", false);
+                }
+            }
+            else
+            {
+                // Dirección vertical predominante
+                if (lastMovementDirection.y > 0)
+                {
+                    playerAnimator.SetBool("IsWalkingRight", false);
+                    playerAnimator.SetBool("IsWalkingLeft", false);
+                    playerAnimator.SetBool("IsWalkingUp", false);
+                    playerAnimator.SetBool("IsWalkingDown", false);
+                    playerAnimator.SetBool("IsIdleRight", false);
+                    playerAnimator.SetBool("IsIdleLeft", false);
+                    playerAnimator.SetBool("IsIdleUp", true);
+                    playerAnimator.SetBool("IsIdleDown", false);
+                }
+                else
+                {
+                    playerAnimator.SetBool("IsWalkingRight", false);
+                    playerAnimator.SetBool("IsWalkingLeft", false);
+                    playerAnimator.SetBool("IsWalkingUp", false);
+                    playerAnimator.SetBool("IsWalkingDown", false);
+                    playerAnimator.SetBool("IsIdleRight", false);
+                    playerAnimator.SetBool("IsIdleLeft", false);
+                    playerAnimator.SetBool("IsIdleUp", false);
+                    playerAnimator.SetBool("IsIdleDown", true);
+                }
+            }
+        }
+
         private void FixedUpdate()
         {
             if (!canMove)

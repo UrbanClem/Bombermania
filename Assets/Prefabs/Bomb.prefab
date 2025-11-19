@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1483207272253687461}
   - component: {fileID: 7208565460935601144}
   - component: {fileID: 6716297800615357657}
+  - component: {fileID: -8081485738711325818}
   m_Layer: 0
   m_Name: Bomb
   m_TagString: Untagged
@@ -213,3 +214,25 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.27, y: 1.18}
   m_EdgeRadius: 0
+--- !u!95 &-8081485738711325818
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6770932359783180822}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a0e0d17565325b14da3fba11f8b30420, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
