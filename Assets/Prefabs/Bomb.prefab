@@ -82,12 +82,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2613247888821195678, guid: 012d7622a570b6a42b04bde4ac0099d2, type: 3}
+  m_Sprite: {fileID: -7077152076209205188, guid: e1dac826c3368f045aab9f7b7893a6e7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.32, y: 0.32}
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -135,6 +135,10 @@ MonoBehaviour:
   - {fileID: 3560184132345025665, guid: a1d646ec5cf860348ac22dd075c451c2, type: 3}
   explosionSfx: {fileID: 8300000, guid: d986befc48033444bac8397381527bda, type: 3}
   explosionVolume: 1
+  tiempoHastaColision: 0.5
+  jugadorLayer:
+    serializedVersion: 2
+    m_Bits: 0
   owner: {fileID: 0}
 --- !u!50 &7208565460935601144
 Rigidbody2D:
@@ -201,8 +205,8 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.27, y: 1.18}
-    newSize: {x: 0.32, y: 0.32}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
