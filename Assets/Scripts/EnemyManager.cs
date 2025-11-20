@@ -10,6 +10,9 @@ public class EnemyManager : MonoBehaviour
     
     private List<GameObject> enemies = new List<GameObject>();
     private bool victoryShown = false;
+    
+    // ✅ NUEVO: Evento para cuando todos los enemigos mueren
+    public System.Action OnAllEnemiesDefeated;
 
     private void Start()
     {
@@ -30,6 +33,8 @@ public class EnemyManager : MonoBehaviour
         if (!victoryShown && AreAllEnemiesDead())
         {
             ShowVictoryText();
+            // ✅ NUEVO: Disparar evento cuando todos los enemigos mueren
+            OnAllEnemiesDefeated?.Invoke();
         }
     }
 
@@ -59,14 +64,10 @@ public class EnemyManager : MonoBehaviour
             victoryText.text = victoryMessage;
             victoryText.gameObject.SetActive(true);
             Debug.Log("¡Victoria! Mostrando texto (indefinidamente).");
-            
-            // ✅ ELIMINADO: Invoke("HideVictoryText", showDuration);
-            // ✅ Ahora el texto se mostrará para siempre
         }
     }
 
     // ✅ ESTE MÉTODO YA NO SE LLAMA AUTOMÁTICAMENTE
-    // Pero lo dejamos por si quieres ocultar el texto manualmente
     private void HideVictoryText()
     {
         if (victoryText != null)
@@ -112,4 +113,7 @@ public class EnemyManager : MonoBehaviour
     {
         ShowVictoryText();
     }
+    
+    // ✅ NUEVO: Propiedad para verificar si todos los enemigos están muertos
+    public bool AllEnemiesDead => AreAllEnemiesDead();
 }
