@@ -6,11 +6,10 @@ using System.Collections;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-public class GameOverMenu : MonoBehaviour
+public class VictoryMenu : MonoBehaviour
 {
     [Header("Botones de Texto")]
-    public TextMeshProUGUI yesButtonText;
-    public TextMeshProUGUI noButtonText;
+    public TextMeshProUGUI quitButtonText;
 
     [Header("Configuración de Botones")]
     public Color normalColor = Color.white;
@@ -21,9 +20,12 @@ public class GameOverMenu : MonoBehaviour
     [Header("Navegación")]
     public float navigationCooldown = 0.2f;
 
-    [Header("Texto de Game Over")]
-    public TextMeshProUGUI gameOverText;
-    public string gameOverMessage = "GAME OVER";
+    [Header("Texto de Victoria")]
+    public TextMeshProUGUI victoryText;
+    public string victoryMessage = "VICTORIA";
+
+    [Header("Configuración adicional")]
+    public string mainMenuScene = "MainMenu";
 
     private TextMeshProUGUI[] buttons;
     private int currentSelection = 0;
@@ -35,22 +37,22 @@ public class GameOverMenu : MonoBehaviour
 
     private void Start()
     {
-        // Inicializar array de botones
-        buttons = new TextMeshProUGUI[] { yesButtonText, noButtonText };
+        // Inicializar array de botones (solo uno)
+        buttons = new TextMeshProUGUI[] { quitButtonText };
 
-        // Configurar texto de Game Over
-        if (gameOverText != null)
+        // Configurar texto de Victoria
+        if (victoryText != null)
         {
-            gameOverText.text = gameOverMessage;
+            victoryText.text = victoryMessage;
         }
 
-        // Configurar cada botón
+        // Configurar el botón
         for (int i = 0; i < buttons.Length; i++)
         {
             SetupButton(buttons[i], i);
         }
 
-        // Seleccionar el primer botón por defecto
+        // Seleccionar el botón por defecto
         SelectButton(0);
         SetupEventSystem();
 
@@ -58,73 +60,12 @@ public class GameOverMenu : MonoBehaviour
         keyboard = Keyboard.current;
         gamepad = Gamepad.current;
 
-        Debug.Log("[GameOverMenu] Menú de Game Over iniciado");
+        Debug.Log("[VictoryMenu] Menú de Victoria iniciado");
     }
 
     private void Update()
     {
-        HandleNavigationInput();
         HandleSelectionInput();
-    }
-
-    private void HandleNavigationInput()
-    {
-        if (Time.unscaledTime - lastNavigationTime < navigationCooldown)
-            return;
-
-        bool navigated = false;
-
-        // Navegación con teclado
-        if (keyboard != null)
-        {
-            if (keyboard.leftArrowKey.wasPressedThisFrame || keyboard.aKey.wasPressedThisFrame)
-            {
-                Navigate(-1);
-                navigated = true;
-            }
-            else if (keyboard.rightArrowKey.wasPressedThisFrame || keyboard.dKey.wasPressedThisFrame)
-            {
-                Navigate(1);
-                navigated = true;
-            }
-            // También permitir navegación vertical por si acaso
-            else if (keyboard.upArrowKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame)
-            {
-                Navigate(-1);
-                navigated = true;
-            }
-            else if (keyboard.downArrowKey.wasPressedThisFrame || keyboard.sKey.wasPressedThisFrame)
-            {
-                Navigate(1);
-                navigated = true;
-            }
-        }
-
-        // Navegación con gamepad
-        if (gamepad != null && !navigated)
-        {
-            Vector2 stickInput = gamepad.leftStick.ReadValue();
-            Vector2 dPadInput = gamepad.dpad.ReadValue();
-
-            // Usar D-pad o stick izquierdo (horizontal o vertical)
-            if (dPadInput.x < -0.5f || stickInput.x < -0.5f || 
-                dPadInput.y > 0.5f || stickInput.y > 0.5f)
-            {
-                Navigate(-1);
-                navigated = true;
-            }
-            else if (dPadInput.x > 0.5f || stickInput.x > 0.5f || 
-                     dPadInput.y < -0.5f || stickInput.y < -0.5f)
-            {
-                Navigate(1);
-                navigated = true;
-            }
-        }
-
-        if (navigated)
-        {
-            lastNavigationTime = Time.unscaledTime;
-        }
     }
 
     private void HandleSelectionInput()
@@ -144,7 +85,9 @@ public class GameOverMenu : MonoBehaviour
         // Selección con gamepad
         if (gamepad != null && !selected)
         {
-            if (gamepad.aButton.wasPressedThisFrame || gamepad.startButton.wasPressedThisFrame)
+            if (gamepad.aButton.wasPressedThisFrame || gamepad.startButton.wasPressedThisFrame ||
+                gamepad.bButton.wasPressedThisFrame || gamepad.xButton.wasPressedThisFrame ||
+                gamepad.yButton.wasPressedThisFrame)
             {
                 ExecuteCurrentButton();
                 selected = true;
@@ -156,11 +99,7 @@ public class GameOverMenu : MonoBehaviour
     {
         if (buttonText != null)
         {
-            switch (index)
-            {
-                case 0: buttonText.text = "YES"; break;
-                case 1: buttonText.text = "NO"; break;
-            }
+            buttonText.text = "QUIT";
 
             Button button = buttonText.GetComponent<Button>();
             if (button == null)
@@ -176,23 +115,8 @@ public class GameOverMenu : MonoBehaviour
             button.colors = colors;
 
             button.onClick.RemoveAllListeners();
-            switch (index)
-            {
-                case 0: button.onClick.AddListener(YesButton); break;
-                case 1: button.onClick.AddListener(NoButton); break;
-            }
+            button.onClick.AddListener(QuitToMainMenu);
         }
-    }
-
-    private void Navigate(int direction)
-    {
-        int newSelection = currentSelection + direction;
-        if (newSelection < 0)
-            newSelection = buttons.Length - 1;
-        else if (newSelection >= buttons.Length)
-            newSelection = 0;
-
-        SelectButton(newSelection);
     }
 
     private void SelectButton(int index)
@@ -217,26 +141,16 @@ public class GameOverMenu : MonoBehaviour
 
     private void ExecuteCurrentButton()
     {
-        switch (currentSelection)
-        {
-            case 0: YesButton(); break;
-            case 1: NoButton(); break;
-        }
+        QuitToMainMenu();
     }
 
-    public void YesButton()
+    public void QuitToMainMenu()
     {
-        Debug.Log("[GameOverMenu] Reiniciando nivel...");
-        StartCoroutine(PlayButtonEffect(yesButtonText, "Stage1"));
+        Debug.Log("[VictoryMenu] Volviendo al menú principal...");
+        StartCoroutine(PlayButtonEffect(quitButtonText));
     }
 
-    public void NoButton()
-    {
-        Debug.Log("[GameOverMenu] Volviendo al menú principal...");
-        StartCoroutine(PlayButtonEffect(noButtonText, "MainMenu"));
-    }
-
-    private IEnumerator PlayButtonEffect(TextMeshProUGUI buttonText, string sceneName)
+    private IEnumerator PlayButtonEffect(TextMeshProUGUI buttonText)
     {
         if (buttonText != null)
         {
@@ -248,7 +162,8 @@ public class GameOverMenu : MonoBehaviour
         // Pequeña pausa antes de cambiar de escena
         yield return new WaitForSecondsRealtime(0.2f);
 
-        SceneManager.LoadScene(sceneName);
+        // Cargar el menú principal
+        SceneManager.LoadScene(mainMenuScene);
     }
 
     private void SetupEventSystem()
@@ -297,16 +212,26 @@ public class GameOverMenu : MonoBehaviour
         }
     }
 
-    // Método para activar/desactivar el menú de Game Over
-    public void ShowGameOverMenu(bool show)
+    // Método para activar/desactivar el menú de Victoria
+    public void ShowVictoryMenu(bool show)
     {
         gameObject.SetActive(show);
         
         if (show)
         {
-            // Reiniciar selección cuando se muestra el menú
+            // Seleccionar el botón cuando se muestra el menú
             SelectButton(0);
-            Debug.Log("[GameOverMenu] Menú de Game Over activado");
+            Debug.Log("[VictoryMenu] Menú de Victoria activado");
+        }
+    }
+
+    // Método para cambiar el mensaje de victoria
+    public void SetVictoryMessage(string message)
+    {
+        victoryMessage = message;
+        if (victoryText != null)
+        {
+            victoryText.text = victoryMessage;
         }
     }
 }

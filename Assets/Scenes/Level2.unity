@@ -304,7 +304,7 @@ MonoBehaviour:
   victoryMusic: {fileID: 8300000, guid: fb9f6cde5a4b78744b7db30525046f56, type: 3}
   sortingOrder: -1
   transitionDelay: 4
-  nextSceneName: Stage2
+  nextSceneName: Stage3
 --- !u!4 &49913275
 Transform:
   m_ObjectHideFlags: 0
