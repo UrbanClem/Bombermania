@@ -3,10 +3,17 @@ using System.Collections;
 
 public class PlayerHealth : MonoBehaviour
 {
+    [Header("Configuración de Salud")]
     public int maxHealth = 1;
+    
+    [Header("Efectos de Muerte")]
+    public AudioClip deathSound;
+    public float deathSoundVolume = 1f;
+    
     private int currentHealth;
     private TopDownShooter.PlayerMovement movement;
     private Animator animator;
+    private AudioSource audioSource;
     private bool isDead = false;
 
     private void Start()
@@ -14,10 +21,18 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = maxHealth;
         movement = GetComponent<TopDownShooter.PlayerMovement>();
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
+        
+        // Si no hay AudioSource, crear uno
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+        }
         
         if (animator == null)
         {
-            Debug.LogError("No se encontró Animator en el jugador");
+            Debug.LogWarning("No se encontró Animator en el jugador");
         }
     }
 
@@ -45,18 +60,35 @@ public class PlayerHealth : MonoBehaviour
         if (movement != null)
             movement.EnableControl(false);
 
+        // Reproducir sonido de muerte
+        PlayDeathSound();
+
         // Reproducir animación de muerte
         if (animator != null)
         {
             animator.SetTrigger("Die");
-            
-            // Esperar a que termine la animación antes de reiniciar
             StartCoroutine(WaitForDeathAnimation());
         }
         else
         {
             // Si no hay animator, reiniciar después de un delay
             Invoke("NotifyGameManager", 1.5f);
+        }
+    }
+
+    private void PlayDeathSound()
+    {
+        if (deathSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(deathSound, deathSoundVolume);
+            Debug.Log("🔊 Reproduciendo sonido de muerte");
+        }
+        else
+        {
+            if (deathSound == null)
+                Debug.LogWarning("No hay sonido de muerte asignado");
+            if (audioSource == null)
+                Debug.LogWarning("No hay AudioSource en el jugador");
         }
     }
 
