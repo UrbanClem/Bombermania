@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -104,11 +104,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 3
-        width: 129
-        height: 25
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        y: 0
+        width: 16
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5300141, y: 0.291902}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -121,11 +121,165 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: White_Bot_SpriteSheet_Right_1
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 0
+        width: 16
+        height: 30
+      alignment: 9
+      pivot: {x: 0.54502094, y: 0.291902}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 32b0e5a82fc2ede4aac3fdba679e2192
+      internalID: -1035096151
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: White_Bot_SpriteSheet_Right_2
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 0
+        width: 16
+        height: 30
+      alignment: 9
+      pivot: {x: 0.5100045, y: 0.291902}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d35652a2daf1f274ba0c094a8825f7fa
+      internalID: 1036096971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: White_Bot_SpriteSheet_Right_3
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 0
+        width: 16
+        height: 30
+      alignment: 9
+      pivot: {x: 0.56002784, y: 0.29990578}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3c2610d37a52cf347b94a4559808c685
+      internalID: -463530238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: White_Bot_SpriteSheet_Right_4
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 16
+        height: 30
+      alignment: 9
+      pivot: {x: 0.52501106, y: 0.29723784}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ada8a03b67336b4419fda8bf0c1e4717
+      internalID: 889102977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: White_Bot_SpriteSheet_Right_5
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 0
+        width: 16
+        height: 30
+      alignment: 9
+      pivot: {x: 0.50500154, y: 0.30790955}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5608c3945d2e4d7449fb81e802503c3c
+      internalID: 987209360
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: White_Bot_SpriteSheet_Right_6
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 16
+        height: 30
+      alignment: 9
+      pivot: {x: 0.53001356, y: 0.291902}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 61c8cce46e5844843ab448694dd63536
+      internalID: -440954197
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: White_Bot_SpriteSheet_Right_7
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 0
+        width: 16
+        height: 30
+      alignment: 9
+      pivot: {x: 0.50500154, y: 0.291902}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d65e63efd56693f4dbf1176b6efc440a
+      internalID: 2046451907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: f7ab1e2d114b4194385890fcefdcc886
     internalID: 0
     vertices: []
     indices: 
@@ -133,9 +287,18 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":16.0,"y":30.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       White_Bot_SpriteSheet_Right_0: -3489576091059504610
+      White_Bot_SpriteSheet_Right_1: -1035096151
+      White_Bot_SpriteSheet_Right_2: 1036096971
+      White_Bot_SpriteSheet_Right_3: -463530238
+      White_Bot_SpriteSheet_Right_4: 889102977
+      White_Bot_SpriteSheet_Right_5: 987209360
+      White_Bot_SpriteSheet_Right_6: -440954197
+      White_Bot_SpriteSheet_Right_7: 2046451907
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

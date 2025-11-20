@@ -5,41 +5,14 @@ namespace TopDownShooter
 {
     public class PlayerMovement : MonoBehaviour
     {
-        // --- agrega dentro de la clase PlayerMovement ---
-        private bool canMove = true;
-
-    
-        public void EnableControl(bool enable)
-        {
-            canMove = enable;
-            if (!enable)
-            {
-                // detén al jugador y el sonido de caminar
-                rb.linearVelocity = Vector2.zero;
-            }
-        }
-
-        // --- pega esto dentro de PlayerMovement (TopDownShooter) ---
-
-        // Getter opcional por si luego quieres leerlo
-        public float CurrentSpeed => moveSpeed;
-
-        // Sumar velocidad con tope
-        public void AddSpeed(float amount, float maxSpeed)
-        {
-            moveSpeed = Mathf.Min(moveSpeed + amount, maxSpeed);
-            // (Opcional) Debug o feedback
-            // Debug.Log($"[PlayerMovement] Nueva velocidad: {moveSpeed}");
-        }
-
         [Header("Movement")]
         [SerializeField] private float moveSpeed = 5f;
-        private Vector2 movementDirection;
+        [SerializeField] private Animator playerAnimator;
+        [SerializeField] private SpriteRenderer spriteRenderer;
 
         [Header("Audio")]
         [SerializeField] private AudioClip moveSound;
         [SerializeField] private float soundInterval = 0.5f;
-        private float soundTimer;
         
         [Header("Circle Effect")]
         [SerializeField] private GameObject circlePrefab;
@@ -56,20 +29,19 @@ namespace TopDownShooter
         [SerializeField] private AudioClip explosionSound;
         
         [Header("Input")]
-        [SerializeField] private InputAction placeBombAction; // Nueva acción de input
+        [SerializeField] private InputAction placeBombAction;
 
-        // Variables para animaciones
-        private Vector2 lastMovementDirection = Vector2.down; // Dirección por defecto
-        
-        [Header("Animation")]
-        [SerializeField] private Animator playerAnimator;
-        
+        // Variables privadas
+        private Vector2 movementDirection;
+        private Vector2 lastMovementDirection = Vector2.down;
         private Rigidbody2D rb;
         private AudioSource audioSource;
         private AudioSource walkAudioSource;
+        private float soundTimer;
         private bool wasMoving = false;
         private GameObject currentCircle;
         private float circleCreationTime;
+        private bool canMove = true;
         private bool isMoving = false;
 
         private void Awake()
@@ -77,6 +49,7 @@ namespace TopDownShooter
             rb = GetComponent<Rigidbody2D>();
             audioSource = GetComponent<AudioSource>();
             
+            // Crear AudioSource para sonidos de caminar
             walkAudioSource = gameObject.AddComponent<AudioSource>();
             walkAudioSource.playOnAwake = false;
             walkAudioSource.loop = false;
@@ -86,21 +59,24 @@ namespace TopDownShooter
                 audioSource = gameObject.AddComponent<AudioSource>();
                 audioSource.playOnAwake = false;
             }
+
+            // Obtener SpriteRenderer si no está asignado
+            if (spriteRenderer == null)
+                spriteRenderer = GetComponent<SpriteRenderer>();
         }
 
         private void OnEnable()
         {
-            placeBombAction.Enable(); // Habilitar la acción
+            placeBombAction.Enable();
         }
 
         private void OnDisable()
         {
-            placeBombAction.Disable(); // Deshabilitar la acción
+            placeBombAction.Disable();
         }
 
         private void Update()
         {
-            // Detectar tanto tecla E como botón X del gamepad
             if (placeBombAction.WasPressedThisFrame())
             {
                 CreateCircle();
@@ -108,7 +84,7 @@ namespace TopDownShooter
             
             CheckCircleExpiration();
             HandleMovementSound();
-            UpdateAnimation(); // Llamar a la actualización de animaciones
+            UpdateAnimation();
         }
 
         private void OnMove(InputValue value)
@@ -130,10 +106,14 @@ namespace TopDownShooter
             
             movementDirection = movementDirection.normalized;
 
-            // Actualizar última dirección solo si hay movimiento
+            // Actualizar última dirección SI HAY movimiento
             if (movementDirection.magnitude > 0.1f)
             {
                 lastMovementDirection = movementDirection;
+                
+                // Actualizar parámetros LastMove en el Animator
+                playerAnimator.SetFloat("LastMoveX", lastMovementDirection.x);
+                playerAnimator.SetFloat("LastMoveY", lastMovementDirection.y);
             }
         }
 
@@ -141,119 +121,50 @@ namespace TopDownShooter
         {
             if (!canMove)
             {
-                // Si no puede moverse, poner animación idle según la última dirección
-                SetIdleAnimation();
+                playerAnimator.SetBool("IsMoving", false);
                 return;
             }
 
-            // Determinar si está moviéndose
-            bool isMoving = movementDirection.magnitude > 0.1f;
+            isMoving = movementDirection.magnitude > 0.1f;
+            
+            // Actualizar IsMoving inmediatamente
+            playerAnimator.SetBool("IsMoving", isMoving);
 
             if (isMoving)
             {
-                SetWalkingAnimation();
-            }
-            else
-            {
-                SetIdleAnimation();
-            }
-        }
+                playerAnimator.SetFloat("MoveX", movementDirection.x);
+                playerAnimator.SetFloat("MoveY", movementDirection.y);
 
-        private void SetWalkingAnimation()
-        {
-            // Determinar dirección principal (priorizar horizontal sobre vertical si hay diagonal)
-            if (Mathf.Abs(movementDirection.x) > Mathf.Abs(movementDirection.y))
-            {
-                // Movimiento horizontal
-                if (movementDirection.x > 0)
+                // Flip para movimiento
+                if (movementDirection.x < 0) 
                 {
-                    playerAnimator.SetBool("IsWalkingRight", true);
-                    playerAnimator.SetBool("IsWalkingLeft", false);
-                    playerAnimator.SetBool("IsWalkingUp", false);
-                    playerAnimator.SetBool("IsWalkingDown", false);
+                    spriteRenderer.flipX = true;
+                    // Actualizar LastMoveX para que el idle sepa que fue izquierda
+                    playerAnimator.SetFloat("LastMoveX", -1f);
                 }
-                else
+                else if (movementDirection.x > 0) 
                 {
-                    playerAnimator.SetBool("IsWalkingRight", false);
-                    playerAnimator.SetBool("IsWalkingLeft", true);
-                    playerAnimator.SetBool("IsWalkingUp", false);
-                    playerAnimator.SetBool("IsWalkingDown", false);
+                    spriteRenderer.flipX = false;
+                    // Actualizar LastMoveX para que el idle sepa que fue derecha
+                    playerAnimator.SetFloat("LastMoveX", 1f);
                 }
             }
             else
             {
-                // Movimiento vertical
-                if (movementDirection.y > 0)
+                // Cuando no se está moviendo, asegurar que los parámetros de movimiento sean 0
+                playerAnimator.SetFloat("MoveX", 0f);
+                playerAnimator.SetFloat("MoveY", 0f);
+                
+                // Mantener el flip basado en la última dirección
+                if (lastMovementDirection.x < -0.1f)
                 {
-                    playerAnimator.SetBool("IsWalkingRight", false);
-                    playerAnimator.SetBool("IsWalkingLeft", false);
-                    playerAnimator.SetBool("IsWalkingUp", true);
-                    playerAnimator.SetBool("IsWalkingDown", false);
+                    spriteRenderer.flipX = true;
+                    playerAnimator.SetFloat("LastMoveX", -1f);
                 }
-                else
+                else if (lastMovementDirection.x > 0.1f)
                 {
-                    playerAnimator.SetBool("IsWalkingRight", false);
-                    playerAnimator.SetBool("IsWalkingLeft", false);
-                    playerAnimator.SetBool("IsWalkingUp", false);
-                    playerAnimator.SetBool("IsWalkingDown", true);
-                }
-            }
-        }
-
-        private void SetIdleAnimation()
-        {
-            // Usar la última dirección para la animación idle
-            if (Mathf.Abs(lastMovementDirection.x) > Mathf.Abs(lastMovementDirection.y))
-            {
-                // Dirección horizontal predominante
-                if (lastMovementDirection.x > 0)
-                {
-                    playerAnimator.SetBool("IsWalkingRight", false);
-                    playerAnimator.SetBool("IsWalkingLeft", false);
-                    playerAnimator.SetBool("IsWalkingUp", false);
-                    playerAnimator.SetBool("IsWalkingDown", false);
-                    // Opcional: tener animaciones idle separadas
-                    //playerAnimator.SetBool("IsIdleRight", true);
-                    //playerAnimator.SetBool("IsIdleLeft", false);
-                    //playerAnimator.SetBool("IsIdleUp", false);
-                    //playerAnimator.SetBool("IsIdleDown", false);
-                }
-                else
-                {
-                    playerAnimator.SetBool("IsWalkingRight", false);
-                    playerAnimator.SetBool("IsWalkingLeft", false);
-                    playerAnimator.SetBool("IsWalkingUp", false);
-                    playerAnimator.SetBool("IsWalkingDown", false);
-                    //playerAnimator.SetBool("IsIdleRight", false);
-                    //playerAnimator.SetBool("IsIdleLeft", true);
-                    //playerAnimator.SetBool("IsIdleUp", false);
-                    //playerAnimator.SetBool("IsIdleDown", false);
-                }
-            }
-            else
-            {
-                // Dirección vertical predominante
-                if (lastMovementDirection.y > 0)
-                {
-                    playerAnimator.SetBool("IsWalkingRight", false);
-                    playerAnimator.SetBool("IsWalkingLeft", false);
-                    playerAnimator.SetBool("IsWalkingUp", false);
-                    playerAnimator.SetBool("IsWalkingDown", false);
-                    playerAnimator.SetBool("IsIdleRight", false);
-                    playerAnimator.SetBool("IsIdleLeft", false);
-                    playerAnimator.SetBool("IsIdleUp", true);
-                    playerAnimator.SetBool("IsIdleDown", false);
-                }
-                else
-                {
-                    playerAnimator.SetBool("IsWalkingRight", false);
-                    playerAnimator.SetBool("IsWalkingLeft", false);
-                    playerAnimator.SetBool("IsWalkingUp", false);
-                    playerAnimator.SetBool("IsWalkingDown", false);
-                    playerAnimator.SetBool("IsIdleRight", false);
-                    playerAnimator.SetBool("IsIdleLeft", false);
-                    playerAnimator.SetBool("IsIdleUp", false);
-                    playerAnimator.SetBool("IsIdleDown", true);
+                    spriteRenderer.flipX = false;
+                    playerAnimator.SetFloat("LastMoveX", 1f);
                 }
             }
         }
@@ -270,7 +181,6 @@ namespace TopDownShooter
             rb.linearVelocity = movementDirection * moveSpeed;
             isMoving = movementDirection.magnitude > 0.1f;
         }
-
 
         private void HandleMovementSound()
         {
@@ -315,6 +225,7 @@ namespace TopDownShooter
             }
         }
 
+        // --- SISTEMA DE BOMBAS ORIGINAL (NO MODIFICADO) ---
         private void CreateCircle()
         {
             if (currentCircle != null)
@@ -437,6 +348,24 @@ namespace TopDownShooter
             {
                 audioSource.PlayOneShot(explosionSound);
             }
+        }
+
+        // Métodos de control externo
+        public void EnableControl(bool enable)
+        {
+            canMove = enable;
+            if (!enable)
+            {
+                rb.linearVelocity = Vector2.zero;
+                playerAnimator.SetBool("IsMoving", false);
+            }
+        }
+
+        public float CurrentSpeed => moveSpeed;
+
+        public void AddSpeed(float amount, float maxSpeed)
+        {
+            moveSpeed = Mathf.Min(moveSpeed + amount, maxSpeed);
         }
     }
 }
