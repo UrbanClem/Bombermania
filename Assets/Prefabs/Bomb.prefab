@@ -123,12 +123,18 @@ MonoBehaviour:
     m_Bits: 128
   fuseSeconds: 1.5
   range: 1
-  explosionVfx: {fileID: 1718810550732817441, guid: d4ec08ee9d87f764e966957ec5b8123c, type: 3}
   vfxSeconds: 0.35
   explosionHitboxPrefab: {fileID: 7757505355331739424, guid: ae986e7d97e72dd4ca2314662533ebec, type: 3}
   hitboxLifetime: 0.2
-  previewVfx: {fileID: 1810890303294926328, guid: 844c5753169385b4bad83cb6350933f9, type: 3}
-  previewZOffset: 0
+  explosionCenter: {fileID: 273429987, guid: de537f6bb79de4241a4a6eb88c40e280, type: 3}
+  explosionHorizontal1: {fileID: 1293801813, guid: de537f6bb79de4241a4a6eb88c40e280, type: 3}
+  explosionHorizontal2: {fileID: -1985491112, guid: de537f6bb79de4241a4a6eb88c40e280, type: 3}
+  explosionVertical1: {fileID: -6229160034642388131, guid: de537f6bb79de4241a4a6eb88c40e280, type: 3}
+  explosionVertical2: {fileID: 1854797235, guid: de537f6bb79de4241a4a6eb88c40e280, type: 3}
+  explosionEndRight: {fileID: 599469864, guid: de537f6bb79de4241a4a6eb88c40e280, type: 3}
+  explosionEndLeft: {fileID: -4168860203845596226, guid: de537f6bb79de4241a4a6eb88c40e280, type: 3}
+  explosionEndUp: {fileID: 7181180982032711265, guid: de537f6bb79de4241a4a6eb88c40e280, type: 3}
+  explosionEndDown: {fileID: -1909794111, guid: de537f6bb79de4241a4a6eb88c40e280, type: 3}
   dropChance: 0.25
   dropPrefabs:
   - {fileID: 8523390844399359750, guid: da7f73a29f2f24348a30114927300b6c, type: 3}

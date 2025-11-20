@@ -7500,7 +7500,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Radius: 0.4
 --- !u!50 &1936885798
 Rigidbody2D:
   serializedVersion: 5
@@ -7541,16 +7541,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDownShooter.PlayerMovement
   moveSpeed: 3
+  playerAnimator: {fileID: 1936885806}
+  spriteRenderer: {fileID: 0}
   moveSound: {fileID: 8300000, guid: 9794958e3ad24ca468e9f1c12493e63c, type: 3}
   soundInterval: 0.3
   circlePrefab: {fileID: 0}
   circleDuration: 1.5
   explosionLinePrefab: {fileID: 0}
-  explosionDuration: 2
-  explosionLength: 3
-  explosionWidth: 0.8
-  placeBombSound: {fileID: 8300000, guid: e93fd369f876d4e48a536ae301da34b0, type: 3}
-  explosionSound: {fileID: 8300000, guid: d986befc48033444bac8397381527bda, type: 3}
+  explosionDuration: 1
+  explosionLength: 5
+  explosionWidth: 0.3
+  placeBombSound: {fileID: 0}
+  explosionSound: {fileID: 0}
   placeBombAction:
     m_Name: Place Bomb
     m_Type: 0
@@ -7560,7 +7562,6 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
-  playerAnimator: {fileID: 0}
 --- !u!212 &1936885800
 SpriteRenderer:
   m_ObjectHideFlags: 0

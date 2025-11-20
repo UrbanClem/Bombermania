@@ -1,19 +1,19 @@
 fileFormatVersion: 2
-guid: 1839d500b8757474bb0999802a9e4641
+guid: de537f6bb79de4241a4a6eb88c40e280
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6193633722780765738
-    second: Brick_Destruction_SpriteSheet_0
+      213: 7181180982032711265
+    second: Bomb_Explosion_SpriteSheet_0
   - first:
-      213: 6028361256028510686
-    second: Brick_Destruction_SpriteSheet_1
+      213: -4011242670133887882
+    second: Bomb_Explosion_SpriteSheet_1
   - first:
-      213: -6687592502405118606
-    second: Brick_Destruction_SpriteSheet_2
+      213: -6229160034642388131
+    second: Bomb_Explosion_SpriteSheet_2
   - first:
-      213: 6516238994035179079
-    second: Brick_Destruction_SpriteSheet_3
+      213: -4168860203845596226
+    second: Bomb_Explosion_SpriteSheet_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,11 +109,33 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Brick_Destruction_SpriteSheet_0
+      name: Bomb_Explosion_SpriteSheet_7
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 64
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16eb9dd3e0ea8a360800000000000000
+      internalID: 7181180982032711265
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_Explosion_SpriteSheet_100
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
+        y: 48
         width: 16
         height: 16
       alignment: 0
@@ -122,20 +144,64 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a2e4a3b3e0534f550800000000000000
-      internalID: 6193633722780765738
+      spriteID: 7f4a8415acacd8149b31addc1d7adc56
+      internalID: -4011242670133887882
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Brick_Destruction_SpriteSheet_1
+      name: Bomb_Explosion_SpriteSheet_3
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f842d35a671413c418d5f813affc4ab1
+      internalID: -6229160034642388131
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_Explosion_SpriteSheet_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bedab3f16df6570468f4bcbd67921f5a
+      internalID: -4168860203845596226
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_Explosion_SpriteSheet_2
       rect:
         serializedVersion: 2
         x: 16
-        y: 0
+        y: 32
         width: 16
         height: 16
       alignment: 0
@@ -144,16 +210,126 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: ed99e4b6f9a09a350800000000000000
-      internalID: 6028361256028510686
+      spriteID: d707cba3b08c7c34797fa042228d3733
+      internalID: -1985491112
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Brick_Destruction_SpriteSheet_2
+      name: Bomb_Explosion_SpriteSheet_0
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e879080c843b68a41872714539327753
+      internalID: 273429987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_Explosion_SpriteSheet_1
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 694cd87c8f66eca40be467a79cf77c4e
+      internalID: 1293801813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_Explosion_SpriteSheet_5
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b9b74b29ddcd1224faca3504dd6e985b
+      internalID: 599469864
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_Explosion_SpriteSheet_90
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 16
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2b2381f0f90d9c34b8e53fb9db14b25e
+      internalID: -1145567537
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_Explosion_SpriteSheet_4
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 16
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 303c4bfd9c36ea54ea49046e07cc647c
+      internalID: 1854797235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bomb_Explosion_SpriteSheet_8
       rect:
         serializedVersion: 2
         x: 32
@@ -166,98 +342,10 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 275c39b2d06e033a0800000000000000
-      internalID: -6687592502405118606
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Brick_Destruction_SpriteSheet_3
-      rect:
-        serializedVersion: 2
-        x: 48
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 74ef30f27d45e6a50800000000000000
-      internalID: 6516238994035179079
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Brick_Destruction_SpriteSheet_4
-      rect:
-        serializedVersion: 2
-        x: 64
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c3cb3c3fa53738c40b8c6d78ecd6b427
-      internalID: 1271491032
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Brick_Destruction_SpriteSheet_5
-      rect:
-        serializedVersion: 2
-        x: 80
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: f2dd8d67c9a24c14988d1e77e78daedc
-      internalID: -1798687668
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Brick_Destruction_SpriteSheet_6
-      rect:
-        serializedVersion: 2
-        x: 96
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 21a7245d1794d3b47a5477dadc204d62
-      internalID: 1703538517
+      spriteID: 0b570001519a60a4fba02ee7bf066c07
+      internalID: -1909794111
       vertices: []
       indices: 
       edges: []
@@ -266,7 +354,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 2ad65085cf0fdae478140655f57cee69
+    spriteID: 6604962670d4c6d4c9b8af5a4a9ea0dd
     internalID: 0
     vertices: []
     indices: 
@@ -278,13 +366,18 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":16.0,"y":16.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Brick_Destruction_SpriteSheet_0: 6193633722780765738
-      Brick_Destruction_SpriteSheet_1: 6028361256028510686
-      Brick_Destruction_SpriteSheet_2: -6687592502405118606
-      Brick_Destruction_SpriteSheet_3: 6516238994035179079
-      Brick_Destruction_SpriteSheet_4: 1271491032
-      Brick_Destruction_SpriteSheet_5: -1798687668
-      Brick_Destruction_SpriteSheet_6: 1703538517
+      Bomb_Explosion_SpriteSheet_0: 273429987
+      Bomb_Explosion_SpriteSheet_1: 1293801813
+      Bomb_Explosion_SpriteSheet_100: -4011242670133887882
+      Bomb_Explosion_SpriteSheet_2: -1985491112
+      Bomb_Explosion_SpriteSheet_3: -6229160034642388131
+      Bomb_Explosion_SpriteSheet_4: 1854797235
+      Bomb_Explosion_SpriteSheet_5: 599469864
+      Bomb_Explosion_SpriteSheet_6: -4168860203845596226
+      Bomb_Explosion_SpriteSheet_7: 7181180982032711265
+      Bomb_Explosion_SpriteSheet_8: -1909794111
+      Bomb_Explosion_SpriteSheet_90: -1145567537
+      "\xF0": -6229160034642388131
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

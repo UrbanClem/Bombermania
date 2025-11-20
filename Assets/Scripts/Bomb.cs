@@ -28,16 +28,22 @@ public class Bomb : MonoBehaviour
     [Header("Explosión")]
     public float fuseSeconds = 1.0f;
     public int range = 1;
-    public GameObject explosionVfx;
     public float vfxSeconds = 0.25f;
 
     [Header("Daño")]
     public GameObject explosionHitboxPrefab; // <-- Asignar ExplosionHitbox prefab
     public float hitboxLifetime = 0.2f;
 
-    [Header("Preview (opcional)")]
-    public GameObject previewVfx;
-    public float previewZOffset = 0f;
+    [Header("Sprites de Explosión Individuales")]
+    public Sprite explosionCenter;          // Bomb_Explosion_SpriteSheet_0
+    public Sprite explosionHorizontal1;     // Bomb_Explosion_SpriteSheet_1  
+    public Sprite explosionHorizontal2;     // Bomb_Explosion_SpriteSheet_2
+    public Sprite explosionVertical1;       // Bomb_Explosion_SpriteSheet_3
+    public Sprite explosionVertical2;       // Bomb_Explosion_SpriteSheet_4
+    public Sprite explosionEndRight;        // Bomb_Explosion_SpriteSheet_5
+    public Sprite explosionEndLeft;         // Bomb_Explosion_SpriteSheet_6
+    public Sprite explosionEndUp;           // Bomb_Explosion_SpriteSheet_7
+    public Sprite explosionEndDown;         // Bomb_Explosion_SpriteSheet_8
 
     [Header("Drops (power-ups)")]
     [Range(0f, 1f)] public float dropChance = 0.25f; // 25% prob por bloque destruido
@@ -55,8 +61,8 @@ public class Bomb : MonoBehaviour
     [HideInInspector] public PlayerBombPlacer owner; // para liberar capacidad
 
     private Vector3Int cellOrigin;
-    private readonly List<GameObject> spawnedPreview = new List<GameObject>();
     private LevelManager levelManager;
+    private Sprite[] explosionSprites;
     
     // Variables para el comportamiento de colisión temporal
     private Collider2D bombCollider;
@@ -99,6 +105,20 @@ public class Bomb : MonoBehaviour
 
     private void Start()
     {
+        // Inicializar array de sprites
+        explosionSprites = new Sprite[]
+        {
+            explosionCenter,      // 0
+            explosionHorizontal1, // 1
+            explosionHorizontal2, // 2
+            explosionVertical1,   // 3
+            explosionVertical2,   // 4
+            explosionEndRight,    // 5
+            explosionEndLeft,     // 6
+            explosionEndUp,       // 7
+            explosionEndDown      // 8
+        };
+
         // Configuración inicial de colisiones - la bomba es atravesable al inicio
         if (bombCollider != null)
         {
@@ -114,8 +134,6 @@ public class Bomb : MonoBehaviour
         cellOrigin = grid.WorldToCell(transform.position);
         Vector3 center = grid.GetCellCenterWorld(cellOrigin);
         transform.position = new Vector3(center.x, center.y, 0f);
-
-        ShowPreview();
 
         StartCoroutine(Fuse());
     }
@@ -147,35 +165,9 @@ public class Bomb : MonoBehaviour
     private IEnumerator Fuse()
     {
         yield return new WaitForSeconds(fuseSeconds);
-        ClearPreview();
         Explode();
         owner?.OnBombFinished(); // libera capacidad
         Destroy(gameObject);
-    }
-
-    // --- ShowPreview consistente con colisiones ---
-    private void ShowPreview()
-    {
-        if (previewVfx == null) return;
-
-        // centro
-        spawnedPreview.Add(SpawnVFX(previewVfx, cellOrigin, fuseSeconds, previewZOffset));
-
-        var dirs = new Vector3Int[] { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
-        foreach (var dir in dirs)
-        {
-            var cells = GetLineCells(dir);
-            for (int i = 0; i < cells.Count; i++)
-            {
-                spawnedPreview.Add(SpawnVFX(previewVfx, cells[i], fuseSeconds, previewZOffset));
-            }
-        }
-    }
-
-    private void ClearPreview()
-    {
-        foreach (var go in spawnedPreview) if (go) Destroy(go);
-        spawnedPreview.Clear();
     }
 
     // ====== Helpers robustos (sin API obsoleta) ======
@@ -226,12 +218,13 @@ public class Bomb : MonoBehaviour
         levelManager?.OnBreakableDestroyed(cell);
     }
 
-    // --- Explode usando la MISMA ruta ---
+    // --- Explode usando sprites reales ---
     private void Explode()
     {
         PlayOneShot2D(explosionSfx, explosionVolume);
 
-        DoExplosionAt(cellOrigin);
+        // Crear explosión en el centro
+        CreateExplosionSprite(cellOrigin, 0); // Centro es el sprite 0
 
         var dirs = new Vector3Int[] { Vector3Int.up, Vector3Int.down, Vector3Int.left, Vector3Int.right };
         foreach (var dir in dirs)
@@ -255,6 +248,7 @@ public class Bomb : MonoBehaviour
                     }
 
                     // 2) Explosión visual/daño en esta celda PERO SIN limpiar drops aquí
+                    CreateExplosionEnd(cell, dir);
                     DoExplosionAt(cell, clearDrops: false);
 
                     // 3) Si NO era salida, recién ahora intentamos drop
@@ -267,17 +261,83 @@ public class Bomb : MonoBehaviour
                     break;
                 }
 
-                // vacío
+                // vacío - crear sprite de explosión según la posición
+                if (i == cells.Count - 1)
+                {
+                    // Última celda - crear extremo
+                    CreateExplosionEnd(cell, dir);
+                }
+                else
+                {
+                    // Celda intermedia - crear segmento
+                    CreateExplosionSegment(cell, dir, i);
+                }
+
                 DoExplosionAt(cell);
             }
         }
     }
 
+    private void CreateExplosionSprite(Vector3Int cell, int spriteIndex)
+    {
+        if (explosionSprites == null || spriteIndex < 0 || spriteIndex >= explosionSprites.Length)
+        {
+            Debug.LogWarning($"[Bomb] Índice de sprite inválido: {spriteIndex}");
+            return;
+        }
+
+        if (explosionSprites[spriteIndex] == null)
+        {
+            Debug.LogWarning($"[Bomb] Sprite en índice {spriteIndex} es null!");
+            return;
+        }
+
+        Vector3 pos = grid.GetCellCenterWorld(cell);
+        GameObject explosion = new GameObject($"ExplosionSprite_{spriteIndex}");
+        explosion.transform.position = pos;
+        
+        SpriteRenderer sr = explosion.AddComponent<SpriteRenderer>();
+        sr.sprite = explosionSprites[spriteIndex];
+        
+        // Configuración de renderizado
+        sr.sortingLayerName = "Default";
+        sr.sortingOrder = 10;
+
+        // Destruir después del tiempo de VFX
+        Destroy(explosion, vfxSeconds);
+    }
+
+    private void CreateExplosionSegment(Vector3Int cell, Vector3Int dir, int segmentIndex)
+    {
+        if (dir.x != 0) // Horizontal
+        {
+            // Alternar entre las dos versiones de segmentos horizontales
+            int spriteIndex = (segmentIndex % 2 == 0) ? 1 : 2; // Sprite 1 o 2 para horizontal
+            CreateExplosionSprite(cell, spriteIndex);
+        }
+        else if (dir.y != 0) // Vertical
+        {
+            // Alternar entre las dos versiones de segmentos verticales
+            int spriteIndex = (segmentIndex % 2 == 0) ? 3 : 4; // Sprite 3 o 4 para vertical
+            CreateExplosionSprite(cell, spriteIndex);
+        }
+    }
+
+    private void CreateExplosionEnd(Vector3Int cell, Vector3Int dir)
+    {
+        if (dir == Vector3Int.right)
+            CreateExplosionSprite(cell, 5); // Extremo derecho
+        else if (dir == Vector3Int.left)
+            CreateExplosionSprite(cell, 6); // Extremo izquierdo
+        else if (dir == Vector3Int.up)
+            CreateExplosionSprite(cell, 7); // Extremo superior
+        else if (dir == Vector3Int.down)
+            CreateExplosionSprite(cell, 8); // Extremo inferior
+    }
+
     private void DoExplosionAt(Vector3Int cell, bool clearDrops = true)
     {
-        if (explosionVfx != null) SpawnVFX(explosionVfx, cell, vfxSeconds, 0f);
-
-        // hitbox de daño (como ya lo tenías)
+        // hitbox de daño
         if (explosionHitboxPrefab != null)
         {
             Vector3 pos = grid.GetCellCenterWorld(cell);
@@ -301,14 +361,6 @@ public class Bomb : MonoBehaviour
         int idx = Random.Range(0, dropPrefabs.Length);
         Vector3 pos = grid.GetCellCenterWorld(cell);
         Instantiate(dropPrefabs[idx], new Vector3(pos.x, pos.y, 0f), Quaternion.identity);
-    }
-
-    private GameObject SpawnVFX(GameObject prefab, Vector3Int cell, float life, float zOffset)
-    {
-        Vector3 pos = grid.GetCellCenterWorld(cell);
-        var go = Instantiate(prefab, new Vector3(pos.x, pos.y, zOffset), Quaternion.identity);
-        if (life > 0f) Destroy(go, life);
-        return go;
     }
 
     // Devuelve las celdas en una dirección,
