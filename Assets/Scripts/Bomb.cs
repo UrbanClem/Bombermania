@@ -119,9 +119,11 @@ public class Bomb : MonoBehaviour
             explosionEndDown      // 8
         };
 
-        // Configuración inicial de colisiones - la bomba es atravesable al inicio
+        // Configuración inicial de colisiones
         if (bombCollider != null)
         {
+            // La bomba es atravesable SOLO para el jugador que la colocó
+            // Pero sólida para enemigos desde el principio
             bombCollider.isTrigger = true;
         }
         
@@ -153,21 +155,48 @@ public class Bomb : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        // Si un enemigo entra en la bomba, ignorar la colisión (es trigger)
+        // Pero si la bomba ya está solidificada, bloquear al enemigo
+        if (other.CompareTag("Enemy") && colisionActivada)
+        {
+            // La bomba ya está sólida, el enemigo no puede pasar
+            // El collider normal se encargará de bloquearlo
+        }
+    }
+
     private void OnTriggerExit2D(Collider2D other)
     {
-        // Si el jugador que colocó la bomba sale de ella, activamos colisión inmediatamente
+        // Solo el jugador que colocó la bomba puede activar la solidificación
         if (!colisionActivada && other.gameObject == jugadorQueColoco)
         {
             ActivarColision();
+            Debug.Log("Bomba solidificada por jugador");
         }
+        
+        // Los enemigos ya no activan la solidificación (sólidos desde el principio)
     }
 
     private IEnumerator Fuse()
     {
+        // Fallback: activar colisión después de un tiempo aunque el jugador no salga
+        StartCoroutine(ActivarColisionPorTiempo());
+        
         yield return new WaitForSeconds(fuseSeconds);
         Explode();
         owner?.OnBombFinished(); // libera capacidad
         Destroy(gameObject);
+    }
+
+    private IEnumerator ActivarColisionPorTiempo()
+    {
+        yield return new WaitForSeconds(tiempoHastaColision);
+        if (!colisionActivada)
+        {
+            ActivarColision();
+            Debug.Log("Bomba solidificada por tiempo");
+        }
     }
 
     // ====== Helpers robustos (sin API obsoleta) ======

@@ -1,114 +1,117 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public class PlayerHealth : MonoBehaviour
 {
-    [Header("Vida")]
-    public int maxHP = 3;
-    public float invulnSeconds = 1.0f;
+    public int maxHealth = 1;
+    private int currentHealth;
+    private TopDownShooter.PlayerMovement movement;
+    private Animator animator;
+    private bool isDead = false;
 
-    [Header("Respawn")]
-    public int lives = 3;
-    public float respawnDelay = 1.2f;
-    public Transform respawnPoint; // arrastra un empty en la escena (o se usa la posición inicial)
-
-    [Header("Blink (parpadeo)")]
-    public float blinkTotal = 1.0f;      // duración del parpadeo tras daño (además de invuln)
-    public float blinkInterval = 0.1f;
-
-    private int currentHP;
-    private float invulnUntil = 0f;
-    private Vector3 startPosition;
-    private List<SpriteRenderer> renderers;
-    private TopDownShooter.PlayerMovement movement; // para bloquear control
-
-    private void Awake()
+    private void Start()
     {
-        currentHP = maxHP;
-        startPosition = transform.position;
+        currentHealth = maxHealth;
         movement = GetComponent<TopDownShooter.PlayerMovement>();
-        renderers = new List<SpriteRenderer>(GetComponentsInChildren<SpriteRenderer>());
-        if (respawnPoint == null)
+        animator = GetComponent<Animator>();
+        
+        if (animator == null)
         {
-            // Si no asignas un punto, usamos la posición inicial
-            GameObject rp = new GameObject("RespawnPoint_Auto");
-            rp.transform.position = startPosition;
-            respawnPoint = rp.transform;
+            Debug.LogError("No se encontrÃ³ Animator en el jugador");
         }
     }
 
-    public void TakeDamage(int amount)
+    public void TakeDamage(int damage)
     {
-        if (Time.time < invulnUntil) return;
-
-        currentHP -= Mathf.Max(1, amount);
-        invulnUntil = Time.time + invulnSeconds;
-
-        // Parpadeo corto de golpe recibido
-        StartCoroutine(BlinkRoutine(blinkTotal));
-
-        if (currentHP <= 0)
+        if (isDead || currentHealth <= 0) return;
+        
+        currentHealth -= damage;
+        Debug.Log($"DaÃ±o recibido. Salud: {currentHealth}");
+        
+        if (currentHealth <= 0)
         {
-            StartCoroutine(RespawnRoutine());
+            Die();
         }
     }
 
-    private IEnumerator RespawnRoutine()
+    private void Die()
     {
-        // “Muerto”
-        lives = Mathf.Max(0, lives - 1);
-        if (movement != null) movement.EnableControl(false);
+        if (isDead) return;
+        
+        isDead = true;
+        Debug.Log("Iniciando animaciÃ³n de muerte...");
+        
+        // Desactivar control inmediatamente
+        if (movement != null)
+            movement.EnableControl(false);
 
-        // pequeñísimo feedback: oculto parcial y bloqueo
-        yield return new WaitForSeconds(respawnDelay);
-
-        if (lives <= 0)
+        // Reproducir animaciÃ³n de muerte
+        if (animator != null)
         {
-            // TODO: Game Over real
-            Debug.Log("[PlayerHealth] GAME OVER (placeholder). Reiniciando stats.");
-            lives = 3;
+            animator.SetTrigger("Die");
+            
+            // Esperar a que termine la animaciÃ³n antes de reiniciar
+            StartCoroutine(WaitForDeathAnimation());
         }
-
-        // Reaparecer
-        transform.position = respawnPoint.position;
-        currentHP = maxHP;
-
-        // invulnerable un rato para no morir instantáneo
-        invulnUntil = Time.time + invulnSeconds + 0.5f;
-        yield return StartCoroutine(BlinkRoutine(invulnSeconds)); // parpadeo de invuln
-
-        if (movement != null) movement.EnableControl(true);
+        else
+        {
+            // Si no hay animator, reiniciar despuÃ©s de un delay
+            Invoke("NotifyGameManager", 1.5f);
+        }
     }
 
-    private IEnumerator BlinkRoutine(float totalDuration)
+    private IEnumerator WaitForDeathAnimation()
     {
-        float t = 0f;
-        bool visible = true;
-
-        while (t < totalDuration)
-        {
-            visible = !visible;
-            SetRenderersVisible(visible);
-            yield return new WaitForSeconds(blinkInterval);
-            t += blinkInterval;
-        }
-
-        SetRenderersVisible(true);
+        // Esperar un frame para asegurar que la animaciÃ³n empezÃ³
+        yield return null;
+        
+        // Esperar a que termine la animaciÃ³n actual
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        float animationLength = stateInfo.length;
+        
+        Debug.Log($"DuraciÃ³n de animaciÃ³n de muerte: {animationLength} segundos");
+        
+        // Esperar la duraciÃ³n de la animaciÃ³n + un pequeÃ±o extra
+        yield return new WaitForSeconds(animationLength + 0.2f);
+        
+        // Notificar al GameManager
+        NotifyGameManager();
     }
 
-    private void SetRenderersVisible(bool v)
+    private void NotifyGameManager()
     {
-        if (renderers == null || renderers.Count == 0)
-            renderers = new List<SpriteRenderer>(GetComponentsInChildren<SpriteRenderer>());
-
-        for (int i = 0; i < renderers.Count; i++)
+        if (GameManager.Instance != null)
         {
-            var sr = renderers[i];
-            if (sr == null) continue;
-            var c = sr.color;
-            c.a = v ? 1f : 0.3f; // 0.3 = semitransparente
-            sr.color = c;
+            GameManager.Instance.PlayerDied();
+        }
+        else
+        {
+            // Fallback
+            UnityEngine.SceneManagement.SceneManager.LoadScene(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        }
+    }
+
+    // Se llama automÃ¡ticamente cuando se reinicia la escena
+    private void OnEnable()
+    {
+        ResetPlayer();
+    }
+
+    private void ResetPlayer()
+    {
+        isDead = false;
+        currentHealth = maxHealth;
+        
+        // Reactivar el control
+        if (movement != null)
+            movement.EnableControl(true);
+
+        // Asegurar que el Animator estÃ© en estado normal
+        if (animator != null)
+        {
+            animator.Rebind();
+            animator.Update(0f);
         }
     }
 }

@@ -7263,6 +7263,52 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &1661183250
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1661183252}
+  - component: {fileID: 1661183251}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1661183251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1661183250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d21ea38f825815e4d871a25abcb8f9c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  totalLives: 3
+  gameOverScene: GameOver
+--- !u!4 &1661183252
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1661183250}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -17.70659, y: -9.518971, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1829546028
 GameObject:
   m_ObjectHideFlags: 0
@@ -7656,7 +7702,7 @@ MonoBehaviour:
   moveSpeed: 3
   playerAnimator: {fileID: 1936885806}
   spriteRenderer: {fileID: 0}
-  moveSound: {fileID: 8300000, guid: 9794958e3ad24ca468e9f1c12493e63c, type: 3}
+  moveSound: {fileID: 8300000, guid: 3b6750ff0960dc949a386bed0aed5c1a, type: 3}
   soundInterval: 0.3
   circlePrefab: {fileID: 0}
   circleDuration: 1.5
@@ -7664,8 +7710,8 @@ MonoBehaviour:
   explosionDuration: 1
   explosionLength: 5
   explosionWidth: 0.3
-  placeBombSound: {fileID: 0}
-  explosionSound: {fileID: 0}
+  placeBombSound: {fileID: 8300000, guid: d986befc48033444bac8397381527bda, type: 3}
+  explosionSound: {fileID: 8300000, guid: d986befc48033444bac8397381527bda, type: 3}
   placeBombAction:
     m_Name: Place Bomb
     m_Type: 0
@@ -7795,7 +7841,7 @@ MonoBehaviour:
   placeCooldown: 0.2
   bombRange: 1
   maxBombRange: 4
-  placeBombSfx: {fileID: 8300000, guid: e93fd369f876d4e48a536ae301da34b0, type: 3}
+  placeBombSfx: {fileID: 8300000, guid: e7bc106500b61034e91ac920c6d484b6, type: 3}
   placeVolume: 1
   bombCapacity: 1
   maxBombCapacity: 5
@@ -7836,8 +7882,8 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.48543426, y: 0.2600947}
-    oldSize: {x: 1, y: 2.125}
+    pivot: {x: 0.49058342, y: 0.18926561}
+    oldSize: {x: 1, y: 2}
     newSize: {x: 1, y: 2.125}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -7988,3 +8034,4 @@ SceneRoots:
   - {fileID: 1559871333}
   - {fileID: 1181443524}
   - {fileID: 842361325}
+  - {fileID: 1661183252}
